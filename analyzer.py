@@ -571,7 +571,7 @@ class Analyzer:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        conn = await asyncpg.connect(os.environ['DATABASE_URL'], ssl=ctx)
+        conn = await asyncpg.connect(os.environ['HEROKU_POSTGRESQL_AQUA_URL'], ssl=ctx)
         dict1 = {}
         worlds = await conn.fetch('SELECT * FROM world_data')
         for item in worlds:
@@ -593,7 +593,7 @@ class Analyzer:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        conn = await asyncpg.connect(os.environ['DATABASE_URL'], ssl=ctx)
+        conn = await asyncpg.connect(os.environ['HEROKU_POSTGRESQL_AQUA_URL'], ssl=ctx)
         scouts = await conn.fetch('SELECT * FROM public.scouts')
         dict1 = {}
         for item in scouts:
@@ -616,7 +616,7 @@ class Analyzer:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        conn = await asyncpg.connect(os.environ['DATABASE_URL'], ssl=ctx)
+        conn = await asyncpg.connect(os.environ['HEROKU_POSTGRESQL_AQUA_URL'], ssl=ctx)
         my_data: Dict[Any, List[Any]] = {
             data: [self.scouts[data]["name"], self.scouts[data]["calls"], self.scouts[data]["scouts"],
                    self.scouts[data]["scout_level"], self.scouts[data]["scout_requests"], self.scouts[data]["bot_mute"]]
@@ -634,7 +634,7 @@ class Analyzer:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        conn = await asyncpg.connect(os.environ['DATABASE_URL'], ssl=ctx)
+        conn = await asyncpg.connect(os.environ['HEROKU_POSTGRESQL_AQUA_URL'], ssl=ctx)
         my_data: Dict[Any, List[Any]] = {
             data: [self.worlds[data][0], self.worlds[data][1], self.worlds[data][2]]
         }
