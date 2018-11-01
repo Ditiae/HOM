@@ -1,0 +1,11 @@
+[[source]]
+url = 'https://pypi.python.org/simple'
+verify_ssl = true
+
+[requires]
+python_version = "3.6.6"
+
+[packages]
+discord = { git = 'https://github.com/Rapptz/discord.py.git'}
+asyncpg = { git = 'https://github.com/MagicStack/asyncpg.git'}
+pbwrap = { git = 'https://github.com/Mikts/pbwrap.git'}

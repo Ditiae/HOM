@@ -1,0 +1,4 @@
+asyncpg
+pbwrap
+discord.py==0.16.12
+psycopg2-binary==2.7.5
