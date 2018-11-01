@@ -107,6 +107,5 @@ venv.bak/
 .idea/*
 
 # authorizations
-auth.json
 ranks.json
 bans.json
