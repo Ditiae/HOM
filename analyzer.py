@@ -571,7 +571,7 @@ class Analyzer:
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        conn = await asyncpg.connect(os.environ['DATABASE_URL'], ssl=ctx)
+        conn = await asyncpg.connect('postgres://gkchrbnqnynahl:f22cd579d193e097662ec1086c2a8404cf738f0ab4ff6b41e29fb9f79721b73f@ec2-54-243-147-162.compute-1.amazonaws.com:5432/d14erqpp366pu2', ssl=ctx)
         dict1 = {}
         worlds = await conn.fetch('SELECT * FROM world_data')
         for item in worlds:
