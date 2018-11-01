@@ -108,7 +108,5 @@ venv.bak/
 
 # authorizations
 auth.json
-saved_worlds.json
-saved_stats.json
 ranks.json
 bans.json
