@@ -39,7 +39,7 @@ class WrongChannelError(commands.CommandError):
 @commands.has_any_role(*settings.ranks)
 async def stats(ctx, arg="scouts"):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         await analyzer.stats(channel, arg)
     else:
         pass
@@ -51,7 +51,7 @@ async def stats(ctx, arg="scouts"):
 @commands.has_any_role(*settings.ranks)
 async def fullstats(ctx, arg="scouts"):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         await analyzer.fullstats(channel, arg)
     else:
         pass
@@ -67,7 +67,7 @@ async def save(ctx):
 @client.command(name='uptime', help="", brief="Displays how long bot has been live.", description="", pass_context=True)
 async def uptime(ctx):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         current_time = time.time()
         difference = int(round(current_time - start_time))
         text = str(datetime.timedelta(seconds=difference))
@@ -182,7 +182,7 @@ async def show(ctx):
                 aliases=['personal'], pass_context=True)
 async def lookup(ctx, *id):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         await analyzer.lookup(channel, id)
     else:
         pass
@@ -191,7 +191,7 @@ async def lookup(ctx, *id):
 @client.command(name='slap', help="", brief="", description="", pass_context=True)
 async def slap(ctx, id):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         await client.send_message(channel, f"{ctx.message.author.name} slapped {id}‽")
     else:
         pass
@@ -323,7 +323,7 @@ async def restart(ctx):
 @client.command(name='ping', help='Checks bots ping.', brief="", description="", pass_context=True)
 async def ping(ctx):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         embed = discord.Embed(colour=ctx.message.author.top_role.colour)
         embed.add_field(name="Pong! :ping_pong:", value="...")
         before = time.monotonic()
@@ -339,7 +339,7 @@ async def ping(ctx):
                 pass_context=True)
 async def commands(ctx):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         await client.say("To report on a world: `w[#] [number of active plinths]`.\n"
                          "Example: `w59 4` or `14 2`\n\n"
                          "To call a core: `w[#] [core name]`.\n"
@@ -365,7 +365,7 @@ async def commands(ctx):
                 pass_context=True)
 async def info(ctx):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         await client.say("Look in: #fc-info for information.")
     else:
         pass
@@ -375,7 +375,7 @@ async def info(ctx):
                 pass_context=True)
 async def version(ctx):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         await client.say("Current bot version: " + VERSION)
     else:
         pass
@@ -385,7 +385,7 @@ async def version(ctx):
                 pass_context=True)
 async def ranks(ctx):
     channel = ctx.message.channel
-    if channel.name in settings.bot_channel:
+    if channel.name == settings.bot_channel:
         rankies = {"6xx\n",
                    "VictoriaKins\n",
                    "WealthRS"}
