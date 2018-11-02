@@ -1,5 +1,5 @@
 {
-  "servers": ["Hall of Memories"],
+  "servers": "Hall of Memories",
   "channels": ["scouting"],
   "ranks": ["Staff"],
   "bot-only-channel": "scouting"

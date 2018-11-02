@@ -360,26 +360,11 @@ async def version():
 async def ranks(ctx):
     channel = ctx.message.channel
     if channel.name in settings.channels:
-        rankies = {"Blue Raivyn\n",
-                   "Sscared\n",
-                   "Bomy\n",
-                   "Insulate\n",
-                   "DTP\n",
-                   "Pur\n",
-                   "Z oD\n",
-                   "Legend-ary\n",
-                   "HuntrMetroid\n",
-                   "Unicorn Snot\n",
-                   "Leighrose\n",
-                   "Eef Top\n",
-                   "Luna Kitten\n",
-                   "L eon\n"
-                   "Metal-chan"
-                   "xElissa"
-                   "Karios"
-                   "Velvet Tiger"}
+        rankies = {"6xx\n",
+                   "VictoriaKins\n",
+                   "WealthRS"}
         rankies = sorted(rankies)
-        ranks_str = "★WealthRS★\n"
+        ranks_str = ""
         for name in rankies:
             ranks_str += str(name)
         await client.say("```" + ranks_str + "```")
@@ -395,7 +380,9 @@ async def on_ready():
     print('Connected!')
     print('Username: ' + client.user.name)
     print('ID: ' + client.user.id)
-    server = [x for x in client.servers if x.name == settings.servers[0]][0]
+    for x in client.servers:
+        print(x)
+    server = [x for x in client.servers if x.name == settings.servers[0]]
     bot_channel = [x for x in server.channels if x.name == settings.bot_only_channel][0]
     await client.send_message(bot_channel, "Nobody fear, the bot is here!")
 
