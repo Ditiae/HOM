@@ -380,9 +380,7 @@ async def on_ready():
     print('Connected!')
     print('Username: ' + client.user.name)
     print('ID: ' + client.user.id)
-    for x in client.servers:
-        print(x)
-    server = [x for x in client.servers if x.name == settings.servers[0]][0]
+    server = [x for x in client.servers if x.name == settings.servers][0]
     bot_channel = [x for x in server.channels if x.name == settings.bot_only_channel][0]
     await client.send_message(bot_channel, "Nobody fear, the bot is here!")
 
