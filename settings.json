@@ -2,5 +2,6 @@
   "servers": "Hall of Memories",
   "channels": ["scouting", "ranks-and-bans"],
   "ranks": ["Staff"],
-  "bot-only-channel": "scouting"
+  "bot-only-channel": "scouting",
+  "bot-channel": "bot-commands"
 }

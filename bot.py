@@ -39,8 +39,10 @@ class WrongChannelError(commands.CommandError):
 @commands.has_any_role(*settings.ranks)
 async def stats(ctx, arg="scouts"):
     channel = ctx.message.channel
-    if channel.name in settings.channels:
+    if channel.name in settings.bot_channel:
         await analyzer.stats(channel, arg)
+    else:
+        pass
 
 
 @client.command(name='fullstats', help="", brief="Shows stats of all scouts.", description="",
@@ -49,8 +51,10 @@ async def stats(ctx, arg="scouts"):
 @commands.has_any_role(*settings.ranks)
 async def fullstats(ctx, arg="scouts"):
     channel = ctx.message.channel
-    if channel.name in settings.channels:
+    if channel.name in settings.bot_channel:
         await analyzer.fullstats(channel, arg)
+    else:
+        pass
 
 
 @client.command(name='save', help="", brief="", description="", hidden=True, pass_context=True)
@@ -62,15 +66,19 @@ async def save(ctx):
 
 @client.command(name='uptime', help="", brief="Displays how long bot has been live.", description="", pass_context=True)
 async def uptime(ctx):
-    current_time = time.time()
-    difference = int(round(current_time - start_time))
-    text = str(datetime.timedelta(seconds=difference))
-    embed = discord.Embed(colour=ctx.message.author.top_role.colour)
-    embed.add_field(name="Bot Uptime:", value=text)
-    try:
-        await client.send_message(ctx.message.channel, embed=embed)
-    except discord.HTTPException:
-        await client.send_message(ctx.message.channel, "Current uptime: " + text)
+    channel = ctx.message.channel
+    if channel.name in settings.bot_channel:
+        current_time = time.time()
+        difference = int(round(current_time - start_time))
+        text = str(datetime.timedelta(seconds=difference))
+        embed = discord.Embed(colour=ctx.message.author.top_role.colour)
+        embed.add_field(name="Bot Uptime:", value=text)
+        try:
+            await client.send_message(ctx.message.channel, embed=embed)
+        except discord.HTTPException:
+            await client.send_message(ctx.message.channel, "Current uptime: " + text)
+    else:
+        pass
 
 
 @client.command(name='ban', help="", brief="Adds username for staff to ban.", description="", pass_context=True)
@@ -107,7 +115,8 @@ async def removeban(ctx, *names):
         raise WrongChannelError
 
 
-@client.command(name='removerank', help="", brief="Removes rank from list.", description="", aliases=['unrank', 'derank'], pass_context=True)
+@client.command(name='removerank', help="", brief="Removes rank from list.", description="",
+                aliases=['unrank', 'derank'], pass_context=True)
 @commands.has_role("Staff")
 async def removerank(ctx, *names):
     name = ' '.join(names)
@@ -173,14 +182,19 @@ async def show(ctx):
                 aliases=['personal'], pass_context=True)
 async def lookup(ctx, *id):
     channel = ctx.message.channel
-    if channel.name in settings.channels:
+    if channel.name in settings.bot_channel:
         await analyzer.lookup(channel, id)
+    else:
+        pass
 
 
 @client.command(name='slap', help="", brief="", description="", pass_context=True)
 async def slap(ctx, id):
     channel = ctx.message.channel
-    await client.send_message(channel, f"{ctx.message.author.name} slapped {id}‽")
+    if channel.name in settings.bot_channel:
+        await client.send_message(channel, f"{ctx.message.author.name} slapped {id}‽")
+    else:
+        pass
 
 
 @client.command(name='resetscout', help="Deletes your assigned scout list.", aliases=['rs'], brief="", description="",
@@ -308,42 +322,50 @@ async def restart(ctx):
 
 @client.command(name='ping', help='Checks bots ping.', brief="", description="", pass_context=True)
 async def ping(ctx):
-    embed = discord.Embed(colour=ctx.message.author.top_role.colour)
-    embed.add_field(name="Pong! :ping_pong:", value="...")
-    before = time.monotonic()
-    message = await client.send_message(ctx.message.channel, embed=embed)
-    pingms = round((time.monotonic() - before) * 1000)
-    embed.set_field_at(0, name="Pong! :ping_pong:", value=f"Pong: {pingms}ms")
-    await client.edit_message(message, embed=embed)
+    channel = ctx.message.channel
+    if channel.name in settings.bot_channel:
+        embed = discord.Embed(colour=ctx.message.author.top_role.colour)
+        embed.add_field(name="Pong! :ping_pong:", value="...")
+        before = time.monotonic()
+        message = await client.send_message(ctx.message.channel, embed=embed)
+        pingms = round((time.monotonic() - before) * 1000)
+        embed.set_field_at(0, name="Pong! :ping_pong:", value=f"Pong: {pingms}ms")
+        await client.edit_message(message, embed=embed)
+    else:
+        pass
 
 
 @client.command(name='commands', help='Lists commands for calling/scouting.', brief="Lists commands", description="",
                 pass_context=True)
-async def commands():
-    await client.say("To report on a world: `w[#] [number of active plinths]`.\n"
-                     "Example: `w59 4` or `14 2`\n\n"
-                     "To call a core: `w[#] [core name]`.\n"
-                     "Example: `w12 cres` or `42 seren`.\n"
-                     "Aliases for core names are shown here: `['cres', 'c', 'sword', 'edicts', 'e', 'sw', 'juna', 'j', "
-                     "'seren', 'se', 'aagi', 'a']`.\n\n"
-                     "To delete a world: `w[#] [0, d, dead, or gone]`.\n"
-                     "Example: `w103 d` or `56 0`\n\n"
-                     "To get a list of worlds to scout: `?scout [optional amount]`. \n"
-                     "Example: `?scout` for a default of 10 worlds or `?scout 5` for 5 worlds.\n"
-                     "If you dont want/can to complete the list use `?resetscout`.\n"
-                     "If you can't do a world just report it to be 0, or ask someone else to do it for you\n"
-                     "To disable the bot pming your list of worlds: `?mute`\n"
-                     "To enable the bot pming your list of worlds: `?unmute`\n\n"
-                     "You can report the worlds in pm to the bot if you want.\n\n"
-                     "The next column will display a max of 10 worlds sorted by active plints.\n"
-                     "To get the full list: `?worldlist`")
+async def commands(ctx):
+    channel = ctx.message.channel
+    if channel.name in settings.bot_channel:
+        await client.say("To report on a world: `w[#] [number of active plinths]`.\n"
+                         "Example: `w59 4` or `14 2`\n\n"
+                         "To call a core: `w[#] [core name]`.\n"
+                         "Example: `w12 cres` or `42 seren`.\n"
+                         "Aliases for core names are shown here: `['cres', 'c', 'sword', 'edicts', 'e', 'sw', 'juna', "
+                         "'j', 'seren', 'se', 'aagi', 'a']`.\n\n"
+                         "To delete a world: `w[#] [0, d, dead, or gone]`.\n"
+                         "Example: `w103 d` or `56 0`\n\n"
+                         "To get a list of worlds to scout: `?scout [optional amount]`. \n"
+                         "Example: `?scout` for a default of 10 worlds or `?scout 5` for 5 worlds.\n"
+                         "If you dont want/can to complete the list use `?resetscout`.\n"
+                         "If you can't do a world just report it to be 0, or ask someone else to do it for you\n"
+                         "To disable the bot pming your list of worlds: `?mute`\n"
+                         "To enable the bot pming your list of worlds: `?unmute`\n\n"
+                         "You can report the worlds in pm to the bot if you want.\n\n"
+                         "The next column will display a max of 10 worlds sorted by active plints.\n"
+                         "To get the full list: `?worldlist`")
+    else:
+        pass
 
 
 @client.command(name='info', help='Lists FC info.', brief="", description="",
                 pass_context=True)
 async def info(ctx):
     channel = ctx.message.channel
-    if channel.name in settings.channels:
+    if channel.name in settings.bot_channel:
         await client.say("Look in: #fc-info for information.")
     else:
         pass
@@ -351,15 +373,19 @@ async def info(ctx):
 
 @client.command(name='version', help='Lists current bot version.', brief="", description="",
                 pass_context=True)
-async def version():
-    await client.say("Current bot version: " + VERSION)
+async def version(ctx):
+    channel = ctx.message.channel
+    if channel.name in settings.bot_channel:
+        await client.say("Current bot version: " + VERSION)
+    else:
+        pass
 
 
 @client.command(name='ranks', help='Lists current FC ranks.', brief="", description="",
                 pass_context=True)
 async def ranks(ctx):
     channel = ctx.message.channel
-    if channel.name in settings.channels:
+    if channel.name in settings.bot_channel:
         rankies = {"6xx\n",
                    "VictoriaKins\n",
                    "WealthRS"}
