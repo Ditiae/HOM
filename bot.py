@@ -422,7 +422,7 @@ async def on_message(message):
         return
 
     print(f"Received message {message.content} in channel {message.channel} from {message.author.name} at "
-          f"{datetime.date.now().strftime('%I:%M%p on %B %d')}".translate(non_bmp_map))
+          f"{datetime.datetime.now().strftime('%I:%M%p on %B %d')}".translate(non_bmp_map))
 
     # Check if we are in the right channel
 
