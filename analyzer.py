@@ -427,7 +427,7 @@ class Analyzer:
             self.check_make_scout(id, username)
             self.scouts[id]["scout_requests"] += 1
 
-        amount = 10
+        amount = 5
         if len(args) >= 1:
             if args[0].isdigit():
                 amount = max(1, min(10, int(args[0])))
