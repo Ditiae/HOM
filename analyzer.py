@@ -418,10 +418,10 @@ class Analyzer:
             await self.client.send_message(channel,
                                            f"{username}, you still need to scout: {self.scouts[id]['worlds']} "
                                            f"Use `?resetscout` if you want to delete your list.")
-            if self.scouts[id]["bot_mute"] == 0:
-                await self.client.send_message(author,
-                                               f"You still need to scout: {self.scouts[id]['worlds'] } "
-                                               f"Use `?resetscout` if you want to delete your list.")
+            # if self.scouts[id]["bot_mute"] == 0:
+            #     await self.client.send_message(author,
+            #                                    f"You still need to scout: {self.scouts[id]['worlds'] } "
+            #                                    f"Use `?resetscout` if you want to delete your list.")
             return
         else:
             self.check_make_scout(id, username)
@@ -454,8 +454,8 @@ class Analyzer:
                 response = f"{username}, please scout the following worlds: {result}."
             self.scouts[id]["worlds"] = result
             await self.client.send_message(channel, response)
-            if self.scouts[id]["bot_mute"] == 0:
-                await self.client.send_message(author, response)
+            # if self.scouts[id]["bot_mute"] == 0:
+            #     await self.client.send_message(author, response)
 
     async def addban(self, username, channel):
         if username in self.bans:

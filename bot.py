@@ -394,7 +394,7 @@ async def ranks(ctx):
         ranks_str = ""
         for name in rankies:
             ranks_str += str(name)
-        await client.say("```" + ranks_str + "```")
+        await client.say("```\n" + ranks_str + "\n```")
     else:
         pass
 
@@ -427,7 +427,7 @@ async def on_message(message):
     # Check if we are in the right channel
 
     if str(message.channel.type) == "private":
-        await analyzer.analyze_call(message)
+        # await analyzer.analyze_call(message)
         return
 
     if message.channel.name not in settings.channels:
