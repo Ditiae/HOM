@@ -78,7 +78,7 @@ def _get_special_special_worlds():
 
 _special_worlds = _get_special_worlds()
 _special_special_worlds = _get_special_special_worlds()
-
+logging.basicConfig(level=logging.DEBUG)
 
 def get_scout_level(scouts):
     for level in exp_table:

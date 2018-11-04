@@ -29,6 +29,7 @@ auth_file = 'auth.json'
 non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
 settings = Settings()
 start_time = time.time()
+logging.basicConfig(level=logging.DEBUG)
 
 
 class WrongChannelError(commands.CommandError):
@@ -455,7 +456,7 @@ async def on_command_error(error, ctx):
         BadArgument: 'Failed parsing given arguments.',
         TooManyArguments: 'Too many arguments given for command.',
         UserInputError: 'User input error.',
-        CommandOnCooldown: str(error),
+        CommandOnCooldown: f'{error}',
         WrongChannelError: 'Command issued in a channel that isn\'t allowed.',
         Forbidden: 'I do not have the correct permissions.'
     }
