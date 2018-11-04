@@ -15,6 +15,7 @@ import json
 import asyncpg
 import logging
 
+from airbrake.notifier import Airbrake
 from pbwrap import Pastebin
 from typing import Dict, List, Any
 
@@ -78,7 +79,7 @@ def _get_special_special_worlds():
 
 _special_worlds = _get_special_worlds()
 _special_special_worlds = _get_special_special_worlds()
-logging.basicConfig(level=logging.INFO)
+
 
 def get_scout_level(scouts):
     for level in exp_table:
@@ -137,6 +138,9 @@ pbuserid = pastebin.authenticate("Wea1th", os.environ['PB_PASS'])
 
 class Analyzer:
     def __init__(self, client):
+        self.ab = Airbrake(project_id=os.environ['AIRBRAKE_PROJECT_ID'], api_key=os.environ['AIRBRAKE_API_KEY'])
+        self.logger = logging
+        self.logger.basicConfig(level=logging.INFO)
         self.worlds = {}
         self.scouts = {}
         self.ranks = []
@@ -146,6 +150,8 @@ class Analyzer:
         self.table_messages = {}  # dict of tables with messages of the table
 
     async def analyze_call(self, message):
+        if message.channel.name != "scouting":
+            return
         # first split on comma/slash/|
         calls = re.split("[|,/]", message.content)
         # then loop over it
@@ -225,8 +231,8 @@ class Analyzer:
             if ch == channel:
                 try:
                     await self.client.delete_message(self.table_messages[channel])
-                except Exception as exc:
-                    logging.error('Error, passing. Exception: ' + str(exc))
+                except Exception as e:
+                    self.logger.error('Error, passing. Exception: ' + str(e))
                     pass
             else:
                 await self.client.edit_message(msg, relay_message)
@@ -318,13 +324,13 @@ class Analyzer:
                 scout_list = sorted(self.scouts.items(), key=lambda x: x[1][sort_type], reverse=False)
             else:
                 sort_type = "scouts"
-                logging.debug(arg)
+                self.logger.debug(arg)
         response = "Here are all the stats of all the scouts: \n"
         num = 1
         for id, scout in scout_list[:10]:
             response += str(num) + ". {name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}` " \
-                        "   Scout Requests: `{scout_requests}`   Current world list: " \
-                        "`{worlds}` \n".format(**self.scouts[id])
+                                   "   Scout Requests: `{scout_requests}`   Current world list: " \
+                                   "`{worlds}` \n".format(**self.scouts[id])
             num += 1
         if len(response) > 1999:
             response = "Response reached max character limit and was removed. Let staff know of this issue."
@@ -342,7 +348,7 @@ class Analyzer:
                 scout_list = sorted(self.scouts.items(), key=lambda x: x[1][sort_type], reverse=False)
             else:
                 sort_type = "scouts"
-                logging.debug(arg)
+                self.logger.debug(arg)
         response = ""
         num = 1
         for id, scout in scout_list:
@@ -675,3 +681,4 @@ class Analyzer:
         saving data) must be done before calling this function."""
         python = sys.executable
         os.execl(python, python, *sys.argv)
+

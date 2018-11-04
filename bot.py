@@ -11,7 +11,6 @@ import sys
 import time
 import datetime
 import discord
-import logging
 
 from discord.ext.commands import Bot, CommandNotFound, DisabledCommand, CheckFailure, MissingRequiredArgument, \
     BadArgument, TooManyArguments, UserInputError, CommandOnCooldown
@@ -29,7 +28,6 @@ auth_file = 'auth.json'
 non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
 settings = Settings()
 start_time = time.time()
-logging.basicConfig(level=logging.INFO)
 
 
 class WrongChannelError(commands.CommandError):
@@ -248,7 +246,7 @@ async def scout(ctx, *args):
         if num_worlds < 3:
             await client.send_message(channel, "You must request at least 3 worlds.")
             return
-    if channel.name in settings.channels:
+    if channel.name == "scouting":
         username = ctx.message.author.name
         author = ctx.message.author
         await analyzer.get_scout_info(channel, author, username, args)
@@ -266,7 +264,7 @@ async def relay(ctx):
 @commands.cooldown(rate=1, per=180, type=commands.BucketType.channel)
 async def worldlist(ctx):
     channel = ctx.message.channel
-    if channel.name in settings.channels:
+    if channel.name == "scouting":
         await client.send_message(channel, analyzer.get_table(False))
 
 
@@ -305,7 +303,7 @@ async def deleteworlddata(ctx):
                 pass_context=True)
 @commands.has_role("Staff")
 async def stop(ctx):
-    logging.warning("Attempting to stop")
+    analyzer.logger.warning("Attempting to stop")
     await analyzer.saves()
     await analyzer.savew()
     await client.send_message(ctx.message.channel, "Stopping....")
@@ -406,9 +404,9 @@ async def on_ready():
     await client.change_presence(game=Game(name="Hall of Memories"))
     await analyzer.loadworlds()
     await analyzer.loadscouts()
-    logging.info('Connected!')
-    logging.info('Username: ' + client.user.name)
-    logging.info('ID: ' + client.user.id)
+    analyzer.logger.info('Connected!')
+    analyzer.logger.info('Username: ' + client.user.name)
+    analyzer.logger.info('ID: ' + client.user.id)
     server = [x for x in client.servers if x.name == settings.servers][0]
     bot_channel = [x for x in server.channels if x.name == settings.bot_only_channel][0]
     await client.send_message(bot_channel, "Nobody fear, the bot is here!")
@@ -423,8 +421,8 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    logging.info(f"Received message {message.content} in channel {message.channel} from {message.author.name} at "
-          f"{datetime.datetime.now().strftime('%I:%M%p on %B %d')}".translate(non_bmp_map))
+    analyzer.logger.info(f"Received message {message.content} in channel {message.channel} from {message.author.name}"
+                         f" at {datetime.datetime.now().strftime('%I:%M%p on %B %d')}".translate(non_bmp_map))
 
     # Check if we are in the right channel
 
@@ -447,7 +445,7 @@ async def on_message(message):
 
 @client.event
 async def on_command_error(error, ctx):
-    logging.error(f"Rip, error {ctx}, {error}")
+    analyzer.logger.error(f"Rip, error {ctx}, {error}")
     errors = {
         CommandNotFound: 'Command not found.',
         DisabledCommand: 'Command has been disabled.',
@@ -462,13 +460,14 @@ async def on_command_error(error, ctx):
     }
     for type, text in errors.items():
         if isinstance(error, type):
+            analyzer.ab.notify(error)
             return await client.send_message(ctx.message.channel, "Command error: " + errors[type])
 
 if not os.path.exists(auth_file):
-    logging.error("no auth json found, please create one")
+    analyzer.logger.error("no auth json found, please create one")
 
 with open(auth_file) as f:
     auth_data = json.load(f)
 
-client.run(os.environ['BOTTOKEN'])
-# client.run(auth_data['token'])
+# client.run(os.environ['BOTTOKEN'])
+client.run(auth_data['token'])
