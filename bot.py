@@ -15,7 +15,7 @@ import discord
 from discord.ext.commands import Bot, CommandNotFound, DisabledCommand, CheckFailure, MissingRequiredArgument, \
     BadArgument, TooManyArguments, UserInputError, CommandOnCooldown
 from discord.ext import commands
-from discord import Game
+from discord import Game, Forbidden
 from Settings import Settings
 from analyzer import Analyzer
 
@@ -455,11 +455,17 @@ async def on_command_error(error, ctx):
         TooManyArguments: 'Too many arguments given for command.',
         UserInputError: 'User input error.',
         CommandOnCooldown: 'Command is on cooldown. Please wait a moment before trying again.',
-        WrongChannelError: 'Command issued in a channel that isn\'t allowed.'
+        WrongChannelError: 'Command issued in a channel that isn\'t allowed.',
+        Forbidden: 'I do not have the correct permissions.'
     }
     for type, text in errors.items():
         if isinstance(error, type):
             return await client.send_message(ctx.message.channel, "Command error: " + errors[type])
+
+
+@client.event
+async def on_error(error, ctx):
+    print(f"Rip, error {ctx},  {error}")
 
 
 if not os.path.exists(auth_file):
