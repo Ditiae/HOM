@@ -81,6 +81,26 @@ async def uptime(ctx):
     else:
         pass
 
+@client.command(name='raffle', help='Chooses someone at random to win.', brief="", description="",
+                pass_context=True)
+@commands.has_role("Staff")
+async def raffle(ctx):
+    channel = ctx.message.channel
+    if channel.name == "scout-raffle":
+        await analyzer.raffle(channel)
+    else:
+        return
+
+
+@client.command(name='entries', help='Displays entries for all weekly scouts.', brief="", description="",
+                pass_context=True)
+async def entries(ctx):
+    channel = ctx.message.channel
+    if channel.name == settings.bot_channel:
+        await analyzer.entries(channel)
+    else:
+        return
+
 
 @client.command(name='ban', help="", brief="Adds username for staff to ban.", description="", pass_context=True)
 @commands.has_role("Staff")
@@ -469,5 +489,5 @@ if not os.path.exists(auth_file):
 with open(auth_file) as f:
     auth_data = json.load(f)
 
-# client.run(os.environ['BOTTOKEN'])
-client.run(auth_data['token'])
+client.run(os.environ['BOTTOKEN'])
+# client.run(auth_data['token'])

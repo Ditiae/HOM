@@ -202,6 +202,7 @@ class Analyzer:
                     id = message.author.id
                     self.check_make_scout(id, message.author.name)
                     self.scouts[id]["scouts"] += 1
+                    self.scouts[id]["weekly_scouts"] += 1
                     scout_level = get_scout_level(self.scouts[id]["scouts"] + self.scouts[id]["calls"])
                     if self.scouts[id]["scout_level"] != scout_level:
                         self.scouts[id]["scout_level"] = scout_level
@@ -370,7 +371,7 @@ class Analyzer:
         if id in self.scouts:
             response = "{name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}`    " \
                        "Scout Requests: `{scout_requests}`   Current world list: " \
-                       "`{worlds}` \n".format(**self.scouts[id])
+                       "`{worlds}`\n".format(**self.scouts[id])
             await self.client.send_message(channel, response)
         else:
             await self.client.send_message(channel, "No stats available for this user.")
@@ -396,6 +397,8 @@ class Analyzer:
             self.scouts[id]["worlds"] = []
         if "bot_mute" not in self.scouts[id]:
             self.scouts[id]["bot_mute"] = 0
+        if "weekly_scout" not in self.scouts[id]:
+            self.scouts[id]["weekly_scout"] = 0
 
     async def set_mute(self, channel, id, name, value):
         self.check_make_scout(id, name)
@@ -546,6 +549,11 @@ class Analyzer:
         self.worlds = {w: (0, 0, 0, 'r') for w in _all_worlds}
         await self.savew()
 
+    async def resetweek(self):
+        for scout in self.scouts:
+            self.scouts[scout]["weekly_scouts"] = 0
+        await self.saves()
+
     async def save(self):
         for item in self.scouts:
             await self.savescouttodb(item)
@@ -559,6 +567,32 @@ class Analyzer:
     async def saves(self):
         for item in self.scouts:
             await self.savescouttodb(item)
+
+    async def raffle(self, channel):
+        entries = []
+        for scout in self.scouts:
+            entry = math.floor(self.scouts[scout]["weekly_scouts"] / 50)
+            for x in range(0, entry):
+                entries.append(scout)
+        logging.info(entries)
+        await self.client.send_message(channel, f"Congrats! <@{str(random.choice(entries))}> has won this weeks raffle!"
+                                                f" Please PM <@168559069022388224> to claim your bond. Thanks for your "
+                                                f"scouts. :) Good luck to the other scouts next week.")
+        await self.resetweek()
+
+    async def entries(self, channel):
+        scout_list = sorted(self.scouts.items(), key=lambda x: x[1]["weekly_scouts"], reverse=True)
+        response = "Here are all the entries for all scouts this week: \n"
+        num = 1
+        for id, scout in scout_list:
+            entries = math.floor(self.scouts[id]['weekly_scouts'] / 50)
+            if entries > 0:
+                response += str(num) + f". {self.scouts[id]['name']}: `{entries}`\n "
+            num += 1
+        if len(response) > 1999:
+            response = "Response reached max character limit and was removed. Let staff know of this issue."
+        await self.client.send_message(channel, response)
+        # make stats for scout mainly
 
     def load(self):
         if os.path.isfile(_save_ranks):
@@ -612,12 +646,14 @@ class Analyzer:
                     "scout_level": item['scout_level'],
                     "scout_requests": item['scout_requests'],
                     "worlds": [],
-                    "bot_mute": item['bot_mute']
+                    "bot_mute": item['bot_mute'],
+                    "weekly_scouts": item['weekly_scouts']
                 }
             }
             dict1 = {**dict1, **dict2}
         conn.close
         self.scouts = dict1
+
 
     async def savescouttodb(self, data):
         ctx = ssl.create_default_context()
@@ -626,15 +662,17 @@ class Analyzer:
         conn = await asyncpg.connect(os.environ['HEROKU_POSTGRESQL_AQUA_URL'], ssl=ctx)
         my_data: Dict[Any, List[Any]] = {
             data: [self.scouts[data]["name"], self.scouts[data]["calls"], self.scouts[data]["scouts"],
-                   self.scouts[data]["scout_level"], self.scouts[data]["scout_requests"], self.scouts[data]["bot_mute"]]
+                   self.scouts[data]["scout_level"], self.scouts[data]["scout_requests"],
+                   self.scouts[data]["bot_mute"], self.scouts[data]["weekly_scouts"]]
         }
         await conn.execute('''
-                INSERT INTO scouts(memberid, name, calls, scouts, scout_level, scout_requests, bot_mute) 
-                VALUES($1, $2, $3, $4, $5, $6, $7)
+                INSERT INTO scouts(memberid, name, calls, scouts, scout_level, scout_requests, bot_mute, weekly_scouts) 
+                VALUES($1, $2, $3, $4, $5, $6, $7, $8)
                 ON CONFLICT (memberid) DO UPDATE 
-                SET "name" = $2, "calls" = $3, "scouts" = $4, "scout_level" = $5, "scout_requests" = $6, "bot_mute" = $7
+                SET "name" = $2, "calls" = $3, "scouts" = $4, "scout_level" = $5, "scout_requests" = $6,
+                 "bot_mute" = $7, "weekly_scouts" = $8
             ''', data, my_data[data][0], my_data[data][1], my_data[data][2], my_data[data][3], my_data[data][4],
-                           my_data[data][5])
+                           my_data[data][5], my_data[data][6])
         await conn.close()
 
     async def saveworldtodb(self, data):
@@ -681,4 +719,3 @@ class Analyzer:
         saving data) must be done before calling this function."""
         python = sys.executable
         os.execl(python, python, *sys.argv)
-
