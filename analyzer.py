@@ -13,6 +13,7 @@ import time
 import random
 import json
 import asyncpg
+import logging
 
 from pbwrap import Pastebin
 from typing import Dict, List, Any
@@ -225,7 +226,7 @@ class Analyzer:
                 try:
                     await self.client.delete_message(self.table_messages[channel])
                 except Exception as exc:
-                    print('Error, passing. Exception: ' + str(exc))
+                    logging.error('Error, passing. Exception: ' + str(exc))
                     pass
             else:
                 await self.client.edit_message(msg, relay_message)
@@ -317,7 +318,7 @@ class Analyzer:
                 scout_list = sorted(self.scouts.items(), key=lambda x: x[1][sort_type], reverse=False)
             else:
                 sort_type = "scouts"
-                print(arg)
+                logging.debug(arg)
         response = "Here are all the stats of all the scouts: \n"
         num = 1
         for id, scout in scout_list[:10]:
@@ -341,7 +342,7 @@ class Analyzer:
                 scout_list = sorted(self.scouts.items(), key=lambda x: x[1][sort_type], reverse=False)
             else:
                 sort_type = "scouts"
-                print(arg)
+                logging.debug(arg)
         response = ""
         num = 1
         for id, scout in scout_list:
@@ -402,7 +403,6 @@ class Analyzer:
             previous_call = self.worlds[world][0]
             previous_time = self.worlds[world][1]
             previous_pop = self.worlds[world][3]
-            print(previous_call, previous_time)
             if type(previous_call) is int:  # temporary depending on your fix.
                 extra_time = (26 - previous_call * 4) * 60
             self.worlds[world] = (previous_call, previous_time, previous_time + extra_time, previous_pop)

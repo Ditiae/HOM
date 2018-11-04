@@ -11,6 +11,7 @@ import sys
 import time
 import datetime
 import discord
+import logging
 
 from discord.ext.commands import Bot, CommandNotFound, DisabledCommand, CheckFailure, MissingRequiredArgument, \
     BadArgument, TooManyArguments, UserInputError, CommandOnCooldown
@@ -303,7 +304,7 @@ async def deleteworlddata(ctx):
                 pass_context=True)
 @commands.has_role("Staff")
 async def stop(ctx):
-    print("Attempting to stop")
+    logging.warning("Attempting to stop")
     await analyzer.saves()
     await analyzer.savew()
     await client.send_message(ctx.message.channel, "Stopping....")
@@ -404,9 +405,9 @@ async def on_ready():
     await client.change_presence(game=Game(name="Hall of Memories"))
     await analyzer.loadworlds()
     await analyzer.loadscouts()
-    print('Connected!')
-    print('Username: ' + client.user.name)
-    print('ID: ' + client.user.id)
+    logging.info('Connected!')
+    logging.info('Username: ' + client.user.name)
+    logging.info('ID: ' + client.user.id)
     server = [x for x in client.servers if x.name == settings.servers][0]
     bot_channel = [x for x in server.channels if x.name == settings.bot_only_channel][0]
     await client.send_message(bot_channel, "Nobody fear, the bot is here!")
@@ -421,7 +422,7 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    print(f"Received message {message.content} in channel {message.channel} from {message.author.name} at "
+    logging.debug(f"Received message {message.content} in channel {message.channel} from {message.author.name} at "
           f"{datetime.datetime.now().strftime('%I:%M%p on %B %d')}".translate(non_bmp_map))
 
     # Check if we are in the right channel
@@ -445,7 +446,7 @@ async def on_message(message):
 
 @client.event
 async def on_command_error(error, ctx):
-    print(f"Rip, error {ctx}, {error}")
+    logging.error(f"Rip, error {ctx}, {error}")
     errors = {
         CommandNotFound: 'Command not found.',
         DisabledCommand: 'Command has been disabled.',
@@ -454,7 +455,7 @@ async def on_command_error(error, ctx):
         BadArgument: 'Failed parsing given arguments.',
         TooManyArguments: 'Too many arguments given for command.',
         UserInputError: 'User input error.',
-        CommandOnCooldown: 'Command is on cooldown. Please wait a moment before trying again.',
+        CommandOnCooldown: str(error),
         WrongChannelError: 'Command issued in a channel that isn\'t allowed.',
         Forbidden: 'I do not have the correct permissions.'
     }
@@ -463,7 +464,7 @@ async def on_command_error(error, ctx):
             return await client.send_message(ctx.message.channel, "Command error: " + errors[type])
 
 if not os.path.exists(auth_file):
-    print("no auth json found, please create one")
+    logging.error("no auth json found, please create one")
 
 with open(auth_file) as f:
     auth_data = json.load(f)
