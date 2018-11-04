@@ -29,7 +29,7 @@ auth_file = 'auth.json'
 non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
 settings = Settings()
 start_time = time.time()
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 class WrongChannelError(commands.CommandError):
@@ -471,4 +471,4 @@ with open(auth_file) as f:
     auth_data = json.load(f)
 
 client.run(os.environ['BOTTOKEN'])
-# client.run(auth_data['token3'])
+# client.run(auth_data['token'])
