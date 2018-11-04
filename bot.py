@@ -462,12 +462,6 @@ async def on_command_error(error, ctx):
         if isinstance(error, type):
             return await client.send_message(ctx.message.channel, "Command error: " + errors[type])
 
-
-@client.event
-async def on_error(error, ctx):
-    print(f"Rip, error {ctx},  {error}")
-
-
 if not os.path.exists(auth_file):
     print("no auth json found, please create one")
 
