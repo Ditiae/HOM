@@ -502,10 +502,10 @@ async def on_command_error(error, ctx):
         WrongChannelError: 'Command issued in a channel that isn\'t allowed.',
         Forbidden: 'I do not have the correct permissions.'
     }
-    for type, text in errors.items():
-        if isinstance(error, type):
+    for error_type, text in errors.items():
+        if isinstance(error, error_type):
             analyzer.ab.notify(error)
-            return await client.send_message(ctx.message.channel, "Command error: " + errors[type])
+            return await client.send_message(ctx.message.channel, "Command error: " + errors[error_type])
 
 if not os.path.exists(auth_file):
     analyzer.logger.error("no auth json found, please create one")

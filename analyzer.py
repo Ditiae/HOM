@@ -14,6 +14,7 @@ import random
 import json
 import asyncpg
 import logging
+import discord
 
 from airbrake.notifier import Airbrake
 from pbwrap import Pastebin
@@ -150,6 +151,8 @@ class Analyzer:
         self.table_messages = {}  # dict of tables with messages of the table
 
     async def analyze_call(self, message):
+        id = None
+        world = None
         if message.channel.name != "scouting":
             return
         # first split on comma/slash/|
@@ -206,6 +209,7 @@ class Analyzer:
                     scout_level = get_scout_level(self.scouts[id]["scouts"] + self.scouts[id]["calls"])
                     if self.scouts[id]["scout_level"] != scout_level:
                         self.scouts[id]["scout_level"] = scout_level
+                        await self.rankup(message.author.name, message.server, scout_level)
                         await self.client.send_message(message.channel,
                                                        f"{message.author.name} has leveled up in scouting! "
                                                        f"{message.author.name} is now level {scout_level} in scouting.")
@@ -222,9 +226,44 @@ class Analyzer:
                     self.check_make_scout(id, message.author.name)
                     self.scouts[id]["calls"] += 1
             # else. check for cres/sword/juna/seren/aagi/reset etc
-        await self.savescouttodb(id)
-        await self.saveworldtodb(world)
+        if id is not None:
+            await self.savescouttodb(id)
+        if world is not None:
+            await self.saveworldtodb(world)
         await self.relay(message.channel)
+
+    async def rankup(self, scout, server, scout_level):
+        if scout_level not in [8, 16, 24, 32, 40]:
+            return
+        member = discord.utils.get(server.members, name=scout)
+        if scout_level == 8:
+            self.logger.info(f"Ranked up {member} to Scout(1)")
+            scout1 = discord.utils.get(server.roles, name="Scout(1)")
+            await self.client.add_roles(member, scout1)
+        elif scout_level == 16:
+            self.logger.info(f"Ranked up {member} to Scout(2)")
+            scout1 = discord.utils.get(server.roles, name="Scout(1)")
+            scout2 = discord.utils.get(server.roles, name="Scout(2)")
+            await self.client.remove_roles(member, scout1)
+            await self.client.add_roles(member, scout2)
+        elif scout_level == 24:
+            self.logger.info(f"Ranked up {member} to Scout(3)")
+            scout1 = discord.utils.get(server.roles, name="Scout(2)")
+            scout2 = discord.utils.get(server.roles, name="Scout(3)")
+            await self.client.remove_roles(member, scout1)
+            await self.client.add_roles(member, scout2)
+        elif scout_level == 32:
+            self.logger.info(f"Ranked up {member} to Scout(4)")
+            scout1 = discord.utils.get(server.roles, name="Scout(3)")
+            scout2 = discord.utils.get(server.roles, name="Scout(4)")
+            await self.client.remove_roles(member, scout1)
+            await self.client.add_roles(member, scout2)
+        elif scout_level == 40:
+            self.logger.info(f"Ranked up {member} to Scout(5)")
+            scout1 = discord.utils.get(server.roles, name="Scout(4)")
+            scout2 = discord.utils.get(server.roles, name="Scout(5)")
+            await self.client.remove_roles(member, scout1)
+            await self.client.add_roles(member, scout2)
 
     async def relay(self, channel):
         relay_message = self.get_table(True)
@@ -357,6 +396,7 @@ class Analyzer:
                                    "   Scout Requests: `{scout_requests}`   Current world list: " \
                                    "`{worlds}` \n".format(**self.scouts[id])
             num += 1
+        # noinspection PyTypeChecker
         pblink = pastebin.create_paste(response, 1, None, '10M', None)
         await self.client.send_message(channel, pblink)
         # make stats for scout mainly
@@ -364,7 +404,7 @@ class Analyzer:
     async def lookup(self, channel, id):
         if id in self.scouts:
             response = "{name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}`    " \
-                       "Scout Requests: `{scout_requests}`   Current world list: " \
+                       "Scout Requests: `{scout_requests}`   Weekly Scouts: `{weekly_scouts}`   Current world list: " \
                        "`{worlds}`\n".format(**self.scouts[id])
             await self.client.send_message(channel, response)
         else:
@@ -644,7 +684,6 @@ class Analyzer:
             dict1 = {**dict1, **dict2}
         conn.close
         self.scouts = dict1
-
 
     async def savescouttodb(self, data):
         ctx = ssl.create_default_context()
