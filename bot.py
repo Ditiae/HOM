@@ -81,6 +81,7 @@ async def uptime(ctx):
     else:
         pass
 
+
 @client.command(name='raffle', help='Chooses someone at random to win.', brief="", description="",
                 pass_context=True)
 @commands.has_role("Staff")
@@ -88,6 +89,18 @@ async def raffle(ctx):
     channel = ctx.message.channel
     if channel.name == "scout-raffle":
         await analyzer.raffle(channel)
+    else:
+        return
+
+
+@client.command(name='resetweek', help='Resets the week.', brief="", description="",
+                pass_context=True)
+@commands.has_role("Staff")
+async def resetweek(ctx):
+    channel = ctx.message.channel
+    if channel.name == "scout-raffle":
+        await analyzer.resetweek()
+        await client.send_message(channel, "Week reset. Good luck scouts!")
     else:
         return
 

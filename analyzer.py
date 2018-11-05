@@ -577,8 +577,7 @@ class Analyzer:
         logging.info(entries)
         await self.client.send_message(channel, f"Congrats! <@{str(random.choice(entries))}> has won this weeks raffle!"
                                                 f" Please PM <@168559069022388224> to claim your bond. Thanks for your "
-                                                f"scouts. :) Good luck to the other scouts next week.")
-        await self.resetweek()
+                                                f"scouts. :)")
 
     async def entries(self, channel):
         scout_list = sorted(self.scouts.items(), key=lambda x: x[1]["weekly_scouts"], reverse=True)
