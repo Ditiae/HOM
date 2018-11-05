@@ -213,9 +213,20 @@ async def show(ctx):
 
 
 @client.command(name='lookup', help="Can tag someone to lookup specific users stats.", brief="", description="",
-                aliases=['personal'], pass_context=True)
-async def lookup(ctx, *id):
+                aliases=[''], pass_context=True)
+async def lookup(ctx):
     channel = ctx.message.channel
+    for id in ctx.message.mentions:
+        if channel.name == settings.bot_channel:
+            await analyzer.lookup(channel, id.id)
+    else:
+        pass
+
+
+@client.command(name='mystats', help="View your stats.", brief="", description="", pass_context=True)
+async def mystats(ctx):
+    channel = ctx.message.channel
+    id = ctx.message.author.id
     if channel.name == settings.bot_channel:
         await analyzer.lookup(channel, id)
     else:

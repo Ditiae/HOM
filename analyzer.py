@@ -361,13 +361,7 @@ class Analyzer:
         await self.client.send_message(channel, pblink)
         # make stats for scout mainly
 
-    async def lookup(self, channel, *id):
-        if len(id) >= 1 and len(id[0]) >= 1:
-            if len(id[0][0]) > 3:
-                if id[0][0][2] == "!":
-                    id = id[0][0][3:-1]
-                else:
-                    id = id[0][0][2:-1]
+    async def lookup(self, channel, id):
         if id in self.scouts:
             response = "{name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}`    " \
                        "Scout Requests: `{scout_requests}`   Current world list: " \
