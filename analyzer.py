@@ -370,8 +370,6 @@ class Analyzer:
         else:
             await self.client.send_message(channel, "No stats available for this user.")
 
-            # make stats for scout mainly
-
     # checks all field that a scout can use and makes them if not existent
     # add new stats on this list
     def check_make_scout(self, id, name):
