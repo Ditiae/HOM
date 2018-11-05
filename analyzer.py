@@ -205,7 +205,7 @@ class Analyzer:
                     id = message.author.id
                     self.check_make_scout(id, message.author.name)
                     self.scouts[id]["scouts"] += 1
-                    if ["weekly_scouts"] not in self.scouts[id]:
+                    if "weekly_scouts" not in self.scouts[id]:
                         self.scouts[id]["weekly_scouts"] = 0
                     self.scouts[id]["weekly_scouts"] += 1
                     scout_level = get_scout_level(self.scouts[id]["scouts"] + self.scouts[id]["calls"])
