@@ -10,4 +10,4 @@ discord = {git = 'https://github.com/PapyrusThePlant/discord.py.git', ref = "rew
 asyncpg = { git = 'https://github.com/MagicStack/asyncpg.git'}
 pbwrap = { git = 'https://github.com/Mikts/pbwrap.git'}
 airbrake = { git = 'https://github.com/airbrake/airbrake-python.git'}
-yarl = { git = https://github.com/aio-libs/yarl.git'}
+yarl = { git = 'https://github.com/aio-libs/yarl.git'}
