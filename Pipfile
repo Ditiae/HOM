@@ -1,15 +1,38 @@
 [[source]]
-url = 'https://pypi.python.org/simple'
+url = "https://pypi.org/simple"
 verify_ssl = true
-
-[requires]
-python_version = "3.6.6"
+name = "pypi"
 
 [packages]
-discord = {git = 'https://github.com/PapyrusThePlant/discord.py.git', ref = "rewrite", extras = ["voice"]}
-asyncpg = { git = 'https://github.com/MagicStack/asyncpg.git'}
-pbwrap = { git = 'https://github.com/Mikts/pbwrap.git'}
-airbrake = { git = 'https://github.com/airbrake/airbrake-python.git'}
-yarl = { git = 'https://github.com/aio-libs/yarl.git'}
-aiohttp = { git = 'https://github.com/aio-libs/aiohttp.git'}
-websockets = { git = 'https://github.com/aaugustin/websockets.git'}
+airbrake = "==2.1.0"
+asyncpg = "==0.18.1"
+pbwrap = "==1.1.0"
+discord-rewrite = "==1.0.0"
+"psycopg2-binary" = "==2.7.5"
+yarl = "==1.2.6"
+aiohttp = "==3.4.4"
+websockets = "==6.0"
+aioschedule = "==0.5.2"
+async = "==0.6.2"
+attrs = "==18.2.0"
+certifi = "==2018.10.15"
+chardet = "==3.0.4"
+dill = "==0.2.8.2"
+futures = "==3.1.1"
+idna = "==2.7"
+multidict = "==4.4.2"
+pyreadline = "==2.1"
+pytz = "==2018.7"
+requests = "==2.20.1"
+schedule = "==0.5.0"
+six = "==1.11.0"
+tzlocal = "==1.5.1"
+"urllib3" = "==1.24.1"
+APScheduler = "==3.5.3"
+async_timeout = "==3.0.0"
+idna_ssl = "==1.0.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"
