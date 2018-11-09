@@ -11,4 +11,3 @@ asyncpg = { git = 'https://github.com/MagicStack/asyncpg.git'}
 pbwrap = { git = 'https://github.com/Mikts/pbwrap.git'}
 airbrake = { git = 'https://github.com/airbrake/airbrake-python.git'}
 yarl = { git = 'https://github.com/aio-libs/yarl.git'}
-aiohttp = { git = 'https://github.com/aio-libs/aiohttp.git'}
