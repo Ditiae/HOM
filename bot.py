@@ -246,6 +246,21 @@ async def resetscout(ctx):
         await analyzer.reset_scout(channel, str(author.id), username)
 
 
+@client.command(name='exempt', help="", brief="", description="")
+@commands.has_role("Staff")
+async def exempt(ctx):
+    channel = ctx.message.channel
+    if channel.name == settings.bot_channel:
+        await analyzer.makeexempt(ctx, ctx.message.mentions[0], ctx.message.channel.guild, False)
+
+
+@client.command(name='exemptme', help="", brief="", description="")
+async def exemptme(ctx):
+    channel = ctx.message.channel
+    if channel.name == settings.bot_channel:
+        await analyzer.makeexempt(ctx, ctx.message.author, ctx.message.channel.guild, True)
+
+
 # @client.command(name='mute', help="Mutes the bot from pming you.", brief="", description="",
 #                 aliases=['zipit', 'stfu'])
 # async def mute(ctx):

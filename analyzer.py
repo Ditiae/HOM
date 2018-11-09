@@ -281,6 +281,23 @@ class Analyzer:
             await member.remove_roles(scout1)
             await member.add_roles(scout2)
 
+    async def makeexempt(self, ctx, user, server, is_staff):
+        if "raffle-exempt" in [y.name.lower() for y in user.roles]:
+            await ctx.send("User already exempt.")
+            return
+        if not is_staff:
+            pass
+        else:
+            await ctx.send("This can only be done by staff, are you sure? If so, reply with `Yes`.")
+
+            def check(m):
+                return m.content.lower() == 'yes' and m.channel.name == "bot-commands"
+
+            response = await self.client.wait_for('message', timeout=30.0, check=check)
+        self.logger.info(f"Exempting: {user} from the raffle.")
+        await user.add_roles(discord.utils.get(server.roles, name="raffle-exempt"))
+        await ctx.send(f"{user.name} is now exempt from the raffle.")
+
     async def relay(self, channel):
         relay_message = self.get_table(True)
         for ch, msg in self.table_messages.items():
