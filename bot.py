@@ -35,7 +35,7 @@ class WrongChannelError(commands.CommandError):
 
 
 @client.command(name='stats', help="", brief="Shows stats of top 10 scouts.", description="",
-                aliases=['highscores'], pass_context=True)
+                aliases=['highscores'])
 @commands.cooldown(rate=1, per=120, type=commands.BucketType.channel)
 @commands.has_any_role(*settings.ranks)
 async def stats(ctx, arg="scouts"):
@@ -47,7 +47,7 @@ async def stats(ctx, arg="scouts"):
 
 
 @client.command(name='fullstats', help="", brief="Shows stats of all scouts.", description="",
-                aliases=['fullhighsores'], pass_context=True)
+                aliases=['fullhighsores'])
 @commands.cooldown(rate=1, per=600, type=commands.BucketType.channel)
 @commands.has_any_role(*settings.ranks)
 async def fullstats(ctx, arg="scouts"):
@@ -58,14 +58,14 @@ async def fullstats(ctx, arg="scouts"):
         pass
 
 
-@client.command(name='save', help="", brief="", description="", hidden=True, pass_context=True)
+@client.command(name='save', help="", brief="", description="", hidden=True)
 @commands.has_any_role(*settings.ranks)
 async def save(ctx):
     await analyzer.save()
-    await client.send_message(ctx.message.channel, "Saving finished.")
+    await ctx.send("Saving finished.")
 
 
-@client.command(name='uptime', help="", brief="Displays how long bot has been live.", description="", pass_context=True)
+@client.command(name='uptime', help="", brief="Displays how long bot has been live.", description="")
 async def uptime(ctx):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
@@ -75,15 +75,14 @@ async def uptime(ctx):
         embed = discord.Embed(colour=ctx.message.author.top_role.colour)
         embed.add_field(name="Bot Uptime:", value=text)
         try:
-            await client.send_message(ctx.message.channel, embed=embed)
+            await ctx.send(embed=embed)
         except discord.HTTPException:
-            await client.send_message(ctx.message.channel, "Current uptime: " + text)
+            await ctx.send("Current uptime: " + text)
     else:
         pass
 
 
-@client.command(name='raffle', help='Chooses someone at random to win.', brief="", description="",
-                pass_context=True)
+@client.command(name='raffle', help='Chooses someone at random to win.', brief="", description="")
 @commands.has_role("Staff")
 async def raffle(ctx):
     channel = ctx.message.channel
@@ -93,20 +92,17 @@ async def raffle(ctx):
         return
 
 
-@client.command(name='resetweek', help='Resets the week.', brief="", description="",
-                pass_context=True)
+@client.command(name='resetweek', help='Resets the week.', brief="", description="")
 @commands.has_role("Staff")
 async def resetweek(ctx):
-    channel = ctx.message.channel
-    if channel.name == "scout-raffle":
+    if ctx.message.channel.name == "scout-raffle":
         await analyzer.resetweek()
-        await client.send_message(channel, "Week reset. Good luck scouts!")
+        await ctx.send("Week reset. Good luck scouts!")
     else:
         return
 
 
-@client.command(name='entries', help='Displays entries for all weekly scouts.', brief="", description="",
-                pass_context=True)
+@client.command(name='entries', help='Displays entries for all weekly scouts.', brief="", description="")
 async def entries(ctx):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
@@ -115,7 +111,7 @@ async def entries(ctx):
         return
 
 
-@client.command(name='ban', help="", brief="Adds username for staff to ban.", description="", pass_context=True)
+@client.command(name='ban', help="", brief="Adds username for staff to ban.", description="")
 @commands.has_role("Staff")
 async def ban(ctx, *names):
     name = ' '.join(names)
@@ -126,7 +122,7 @@ async def ban(ctx, *names):
         raise WrongChannelError
 
 
-@client.command(name='rank', help="", brief="Adds username for staff to rank.", description="", pass_context=True)
+@client.command(name='rank', help="", brief="Adds username for staff to rank.", description="")
 @commands.has_role("Staff")
 async def rank(ctx, *names):
     name = ' '.join(names)
@@ -137,8 +133,7 @@ async def rank(ctx, *names):
         raise WrongChannelError
 
 
-@client.command(name='removeban', help="", brief="Removes bans from list.", description="",
-                aliases=['unban', 'deban'], pass_context=True)
+@client.command(name='removeban', help="", brief="Removes bans from list.", description="", aliases=['unban', 'deban'])
 @commands.has_role("Staff")
 async def removeban(ctx, *names):
     name = ' '.join(names)
@@ -150,7 +145,7 @@ async def removeban(ctx, *names):
 
 
 @client.command(name='removerank', help="", brief="Removes rank from list.", description="",
-                aliases=['unrank', 'derank'], pass_context=True)
+                aliases=['unrank', 'derank'])
 @commands.has_role("Staff")
 async def removerank(ctx, *names):
     name = ' '.join(names)
@@ -161,7 +156,7 @@ async def removerank(ctx, *names):
         raise WrongChannelError
 
 
-@client.command(name='clearbans', help="", brief="Clears ban list.", description="", pass_context=True)
+@client.command(name='clearbans', help="", brief="Clears ban list.", description="")
 @commands.has_role("Staff")
 async def clearbans(ctx):
     channel = ctx.message.channel
@@ -171,7 +166,7 @@ async def clearbans(ctx):
         raise WrongChannelError
 
 
-@client.command(name='clearranks', help="", brief="Clears rank list.", description="", pass_context=True)
+@client.command(name='clearranks', help="", brief="Clears rank list.", description="")
 @commands.has_role("Staff")
 async def clearranks(ctx):
     channel = ctx.message.channel
@@ -182,7 +177,7 @@ async def clearranks(ctx):
 
 
 @client.command(name='showbans', help="", brief="Shows just ban list.", description="",
-                aliases=['bans'], pass_context=True)
+                aliases=['bans'])
 @commands.has_role("Staff")
 async def showbans(ctx):
     channel = ctx.message.channel
@@ -192,7 +187,7 @@ async def showbans(ctx):
         raise WrongChannelError
 
 
-@client.command(name='showranks', help="", brief="Shows just rank list.", description="", pass_context=True)
+@client.command(name='showranks', help="", brief="Shows just rank list.", description="")
 @commands.has_role("Staff")
 async def showranks(ctx):
     channel = ctx.message.channel
@@ -202,7 +197,7 @@ async def showranks(ctx):
         raise WrongChannelError
 
 
-@client.command(name='show', help="", brief="Shows rank and ban list.", description="", pass_context=True)
+@client.command(name='show', help="", brief="Shows rank and ban list.", description="")
 @commands.has_role("Staff")
 async def show(ctx):
     channel = ctx.message.channel
@@ -213,67 +208,65 @@ async def show(ctx):
 
 
 @client.command(name='lookup', help="Can tag someone to lookup specific users stats.", brief="", description="",
-                aliases=[''], pass_context=True)
+                aliases=[''])
 async def lookup(ctx):
     channel = ctx.message.channel
     for id in ctx.message.mentions:
         if channel.name == settings.bot_channel:
-            await analyzer.lookup(channel, id.id)
+            await analyzer.lookup(channel, str(id.id))
     else:
         pass
 
 
-@client.command(name='mystats', help="View your stats.", brief="", description="", pass_context=True)
+@client.command(name='mystats', help="View your stats.", brief="", description="")
 async def mystats(ctx):
     channel = ctx.message.channel
-    id = ctx.message.author.id
+    id = str(ctx.message.author.id)
     if channel.name == settings.bot_channel:
         await analyzer.lookup(channel, id)
     else:
         pass
 
 
-@client.command(name='slap', help="", brief="", description="", pass_context=True)
-async def slap(ctx, id):
+@client.command(name='slap', help="", brief="", description="")
+async def slap(ctx, user):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
-        await client.send_message(channel, f"{ctx.message.author.name} slapped {id}‽")
+        await ctx.send(f"{ctx.message.author.name} slapped {user}‽")
     else:
         pass
 
 
-@client.command(name='resetscout', help="Deletes your assigned scout list.", aliases=['rs'], brief="", description="",
-                pass_context=True)
+@client.command(name='resetscout', help="Deletes your assigned scout list.", aliases=['rs'], brief="", description="")
 async def resetscout(ctx):
     channel = ctx.message.channel
     if channel.name in settings.channels:
         author = ctx.message.author
         username = author.name
-        await analyzer.reset_scout(channel, author.id, username)
+        await analyzer.reset_scout(channel, str(author.id), username)
 
 
 @client.command(name='mute', help="Mutes the bot from pming you.", brief="", description="",
-                aliases=['zipit', 'stfu'], pass_context=True)
+                aliases=['zipit', 'stfu'])
 async def mute(ctx):
     channel = ctx.message.channel
     if channel.name in settings.channels:
         author = ctx.message.author
         username = author.name
-        await analyzer.set_mute(channel, author.id, username, 1)
+        await analyzer.set_mute(channel, str(author.id), username, 1)
 
 
 @client.command(name='unmute', help="Unmutes the bot so you can be messaged.", brief="", description="",
-                aliases=['unzipit'], pass_context=True)
+                aliases=['unzipit'])
 async def unmute(ctx):
     channel = ctx.message.channel
     if channel.name in settings.channels:
         author = ctx.message.author
         username = author.name
-        await analyzer.set_mute(channel, author.id, username, 0)
+        await analyzer.set_mute(channel, str(author.id), username, 0)
 
 
-@client.command(name='updatescoutstats', help="fixes issues with unset scout fields", brief="", description="",
-                pass_context=True)
+@client.command(name='updatescoutstats', help="fixes issues with unset scout fields", brief="", description="")
 @commands.has_any_role(*settings.ranks)
 async def updatescoutstats(ctx):
     channel = ctx.message.channel
@@ -282,13 +275,13 @@ async def updatescoutstats(ctx):
 
 
 @client.command(name='scout', help='Gives you a list of best worlds to scout.', brief="", description="",
-                aliases=['request', 'req'], pass_context=True)
+                aliases=['request', 'req'])
 async def scout(ctx, *args):
     channel = ctx.message.channel
     if len(args) != 0:
         num_worlds = int(args[0])
         if num_worlds < 3:
-            await client.send_message(channel, "You must request at least 3 worlds.")
+            await ctx.send("You must request at least 3 worlds.")
             return
     if channel.name == "scouting":
         username = ctx.message.author.name
@@ -297,25 +290,25 @@ async def scout(ctx, *args):
 
 
 @client.command(name='relay', help="Brings worldlist to newest message.", brief="", description="",
-                aliases=['worlds', 'list', 'calls'], pass_context=True)
+                aliases=['worlds', 'list', 'calls'])
 async def relay(ctx):
     channel = ctx.message.channel
     if channel.name in settings.channels:
         await analyzer.relay(channel)
 
 
-@client.command(name='worldlist', help="Shows all scouted worlds.", brief="", description="", pass_context=True)
+@client.command(name='worldlist', help="Shows all scouted worlds.", brief="", description="")
 @commands.cooldown(rate=1, per=180, type=commands.BucketType.channel)
 async def worldlist(ctx):
     channel = ctx.message.channel
     if channel.name == "scouting":
-        await client.send_message(channel, analyzer.get_table(False))
+        await ctx.send(analyzer.get_table(False))
 
 
 @client.command(name='deleteworlddata',
                 help='Refreshes current world data. If you are found abusing, you will be removed.'
                      ' Works only with Staff rank.', brief="", description="",
-                aliases=['deleteeverythingrightmeow'], pass_context=True)
+                aliases=['deleteeverythingrightmeow'])
 @commands.has_any_role(*settings.ranks)
 async def deleteworlddata(ctx):
     channel = ctx.message.channel
@@ -339,53 +332,52 @@ async def deleteworlddata(ctx):
     if channel.name in settings.channels:
         await analyzer.reset()
         response = f"World data has been {random.choice(possible_replies)}."
-        await client.send_message(channel, response)
+        await ctx.send(response)
         await analyzer.relay(channel)
 
 
-@client.command(name='stop', help='Stops bot vigorously. Works only with Staff rank.', brief="", description="",
-                pass_context=True)
+@client.command(name='stop', help='Stops bot vigorously. Works only with Staff rank.', brief="", description="")
 @commands.has_role("Staff")
 async def stop(ctx):
     analyzer.logger.warning("Attempting to stop")
     await analyzer.saves()
     await analyzer.savew()
-    await client.send_message(ctx.message.channel, "Stopping....")
+    await ctx("Stopping....")
     await client.logout()
     exit(0)
 
 
-@client.command(name='restart', help='Restarts bot.', brief="", description="",
-                pass_context=True)
+@client.command(name='restart', help='Restarts bot.', brief="", description="")
 @commands.has_role("Staff")
 async def restart(ctx):
     await analyzer.saves()
     await analyzer.savew()
-    await client.send_message(ctx.message.channel, "Restarting....")
+    await ctx.send("Restarting....")
     analyzer.restart_program()
 
 
-@client.command(name='ping', help='Checks bots ping.', brief="", description="", pass_context=True)
+@client.command(name='ping', help='Checks bots ping.', brief="", description="")
 async def ping(ctx):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
         embed = discord.Embed(colour=ctx.message.author.top_role.colour)
         embed.add_field(name="Pong! :ping_pong:", value="...")
-        before = time.monotonic()
-        message = await client.send_message(ctx.message.channel, embed=embed)
-        pingms = round((time.monotonic() - before) * 1000)
+        message = await ctx.send(embed=embed)
+        t1 = time.perf_counter()
+        await channel.trigger_typing()
+        t2 = time.perf_counter()
+        pingms = round((t2-t1)*1000)
         embed.set_field_at(0, name="Pong! :ping_pong:", value=f"Pong: {pingms}ms")
-        await client.edit_message(message, embed=embed)
+        await message.edit(embed=embed)
     else:
         pass
 
 
-@client.command(name='commands', help='Lists commands for calling/scouting.', brief="Lists commands", description="",
-                pass_context=True)
+@client.command(name='commands', help='Lists commands for calling/scouting.', brief="Lists commands", description="")
 async def commands(ctx):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
-        await client.say("To report on a world: `w[#] [number of active plinths]`.\n"
+        await ctx.send("To report on a world: `w[#] [number of active plinths]`.\n"
                          "Example: `w59 4` or `14 2`\n\n"
                          "To call a core: `w[#] [core name]`.\n"
                          "Example: `w12 cres` or `42 seren`.\n"
@@ -406,28 +398,25 @@ async def commands(ctx):
         pass
 
 
-@client.command(name='info', help='Lists FC info.', brief="", description="",
-                pass_context=True)
+@client.command(name='info', help='Lists FC info.', brief="", description="")
 async def info(ctx):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
-        await client.say("Look in: #fc-info for information.")
+        await ctx.send("Look in: #fc-info for information.")
     else:
         pass
 
 
-@client.command(name='version', help='Lists current bot version.', brief="", description="",
-                pass_context=True)
+@client.command(name='version', help='Lists current bot version.', brief="", description="")
 async def version(ctx):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
-        await client.say("Current bot version: " + VERSION)
+        await ctx.send("Current bot version: " + VERSION)
     else:
         pass
 
 
-@client.command(name='ranks', help='Lists current FC ranks.', brief="", description="",
-                pass_context=True)
+@client.command(name='ranks', help='Lists current FC ranks.', brief="", description="")
 async def ranks(ctx):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
@@ -438,7 +427,7 @@ async def ranks(ctx):
         ranks_str = ""
         for name in rankies:
             ranks_str += str(name)
-        await client.say("```\n" + ranks_str + "\n```")
+        await ctx.send("```\n" + ranks_str + "\n```")
     else:
         pass
 
@@ -450,10 +439,10 @@ async def on_ready():
     await analyzer.loadscouts()
     analyzer.logger.info('Connected!')
     analyzer.logger.info('Username: ' + client.user.name)
-    analyzer.logger.info('ID: ' + client.user.id)
-    server = [x for x in client.servers if x.name == settings.servers][0]
+    analyzer.logger.info('ID: ' + str(client.user.id))
+    server = [x for x in client.guilds if x.name == settings.servers][0]
     bot_channel = [x for x in server.channels if x.name == settings.bot_only_channel][0]
-    await client.send_message(bot_channel, "Nobody fear, the bot is here!")
+    await bot_channel.send("Nobody fear, the bot is here!")
 
 
 mainMessage = None
@@ -467,17 +456,15 @@ async def on_message(message):
 
     analyzer.logger.info(f"Received message {message.content} in channel {message.channel} from {message.author.name}"
                          f" at {datetime.datetime.now().strftime('%I:%M%p on %B %d')}".translate(non_bmp_map))
-
     # Check if we are in the right channel
-
-    if str(message.channel.type) == "private":
+    if isinstance(message.channel, discord.abc.PrivateChannel):
         # await analyzer.analyze_call(message)
         return
 
     if message.channel.name not in settings.channels:
         return
 
-    if message.server.name not in settings.servers:
+    if message.guild.name not in settings.servers:
         return
 
     message.content = message.content.lower()
@@ -488,7 +475,7 @@ async def on_message(message):
 
 
 @client.event
-async def on_command_error(error, ctx):
+async def on_command_error(ctx, error):
     analyzer.logger.error(f"Rip, error {ctx}, {error}")
     errors = {
         CommandNotFound: 'Command not found.',
@@ -505,7 +492,7 @@ async def on_command_error(error, ctx):
     for error_type, text in errors.items():
         if isinstance(error, error_type):
             analyzer.ab.notify(error)
-            return await client.send_message(ctx.message.channel, "Command error: " + errors[error_type])
+            return await ctx.message.channel.send("Command error: " + errors[error_type])
 
 if not os.path.exists(auth_file):
     analyzer.logger.error("no auth json found, please create one")
@@ -513,5 +500,5 @@ if not os.path.exists(auth_file):
 with open(auth_file) as f:
     auth_data = json.load(f)
 
-client.run(os.environ['BOTTOKEN'])
-# client.run(auth_data['token'])
+# client.run(os.environ['BOTTOKEN'])
+client.run(auth_data['token'])

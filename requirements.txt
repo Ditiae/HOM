@@ -1,5 +1,5 @@
 airbrake
 asyncpg
 pbwrap
-discord.py==0.16.12
+discord-rewrite
 psycopg2-binary==2.7.5

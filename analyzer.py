@@ -17,6 +17,7 @@ import logging
 import discord
 
 from airbrake.notifier import Airbrake
+from discord.abc import PrivateChannel
 from pbwrap import Pastebin
 from typing import Dict, List, Any
 
@@ -179,12 +180,11 @@ class Analyzer:
             world = int(world)
 
             if world in _special_worlds:
-                if str(message.channel.type) != "private":
-                    await self.client.send_message(message.channel,
-                                                   f"NOTE, w{world} is a {_special_worlds[world]}.")
+                if isinstance(message.channel, PrivateChannel):
+                    await message.channel.send(f"NOTE, w{world} is a {_special_worlds[world]}.")
 
             if world not in self.worlds:
-                await self.client.send_message(message.channel, f"{world} is not a p2p english world.")
+                await message.channel.send(f"{world} is not a p2p english world.")
                 return
 
             # clear worlds from scouts
@@ -202,7 +202,7 @@ class Analyzer:
                     # for now this also includes 5/6 (this has 6 mins) if this gives a problem ill change it.
                     extra_time = (26 - flints_filled * 4) * 60
                     self.worlds[world] = (flints_filled, time.time(), time.time() + extra_time, population)
-                    id = message.author.id
+                    id = str(message.author.id)
                     self.check_make_scout(id, message.author.name)
                     self.scouts[id]["scouts"] += 1
                     if "weekly_scouts" not in self.scouts[id]:
@@ -211,10 +211,9 @@ class Analyzer:
                     scout_level = get_scout_level(self.scouts[id]["scouts"] + self.scouts[id]["calls"])
                     if self.scouts[id]["scout_level"] != scout_level:
                         self.scouts[id]["scout_level"] = scout_level
-                        await self.rankup(message.author.name, message.server, scout_level)
-                        await self.client.send_message(message.channel,
-                                                       f"{message.author.name} has leveled up in scouting! "
-                                                       f"{message.author.name} is now level {scout_level} in scouting.")
+                        await self.rankup(message.author.name, message.guild, scout_level)
+                        await message.channel.send(f"{message.author.name} has leveled up in scouting! "
+                                                   f"{message.author.name} is now level {scout_level} in scouting.")
             else:
                 if str(call) in ['reset', 'r']:
                     return
@@ -224,7 +223,7 @@ class Analyzer:
                     core = get_core_name(core.lower())
                     extra_time = 26 * 60  # default time till rescout on a 0/6 world
                     self.worlds[world] = (core, time.time(), time.time() + extra_time, population)
-                    id = message.author.id
+                    id = str(message.author.id)
                     self.check_make_scout(id, message.author.name)
                     self.scouts[id]["calls"] += 1
             # else. check for cres/sword/juna/seren/aagi/reset etc
@@ -241,45 +240,45 @@ class Analyzer:
         if scout_level == 8:
             self.logger.info(f"Ranked up {member} to Scout(1)")
             scout1 = discord.utils.get(server.roles, name="Scout(1)")
-            await self.client.add_roles(member, scout1)
+            await member.add_roles(scout1)
         elif scout_level == 16:
             self.logger.info(f"Ranked up {member} to Scout(2)")
             scout1 = discord.utils.get(server.roles, name="Scout(1)")
             scout2 = discord.utils.get(server.roles, name="Scout(2)")
-            await self.client.remove_roles(member, scout1)
-            await self.client.add_roles(member, scout2)
+            await member.remove_roles(scout1)
+            await member.add_roles(scout2)
         elif scout_level == 24:
             self.logger.info(f"Ranked up {member} to Scout(3)")
             scout1 = discord.utils.get(server.roles, name="Scout(2)")
             scout2 = discord.utils.get(server.roles, name="Scout(3)")
-            await self.client.remove_roles(member, scout1)
-            await self.client.add_roles(member, scout2)
+            await member.remove_roles(scout1)
+            await member.add_roles(scout2)
         elif scout_level == 32:
             self.logger.info(f"Ranked up {member} to Scout(4)")
             scout1 = discord.utils.get(server.roles, name="Scout(3)")
             scout2 = discord.utils.get(server.roles, name="Scout(4)")
-            await self.client.remove_roles(member, scout1)
-            await self.client.add_roles(member, scout2)
+            await member.remove_roles(scout1)
+            await member.add_roles(scout2)
         elif scout_level == 40:
             self.logger.info(f"Ranked up {member} to Scout(5)")
             scout1 = discord.utils.get(server.roles, name="Scout(4)")
             scout2 = discord.utils.get(server.roles, name="Scout(5)")
-            await self.client.remove_roles(member, scout1)
-            await self.client.add_roles(member, scout2)
+            await member.remove_roles(scout1)
+            await member.add_roles(scout2)
 
     async def relay(self, channel):
         relay_message = self.get_table(True)
         for ch, msg in self.table_messages.items():
             if ch == channel:
                 try:
-                    await self.client.delete_message(self.table_messages[channel])
+                    await self.table_messages[channel].delete()
                 except Exception as e:
                     self.logger.error('Error, passing. Exception: ' + str(e))
                     pass
             else:
-                await self.client.edit_message(msg, relay_message)
-        if str(channel.type) != "private":
-            self.table_messages[channel] = await self.client.send_message(channel, relay_message)
+                await msg.edit(relay_message)
+        if not isinstance(channel, discord.abc.PrivateChannel):
+            self.table_messages[channel] = await channel.send(relay_message)
 
     def get_table(self, trim):
         active_list = [(k, v) for k, v in self.worlds.items() if self.is_ok(v[0], v[1])]
@@ -375,7 +374,7 @@ class Analyzer:
             num += 1
         if len(response) > 1999:
             response = "Response reached max character limit and was removed. Let staff know of this issue."
-        await self.client.send_message(channel, response)
+        await channel.send(response)
         # make stats for scout mainly
 
     async def fullstats(self, channel, arg):
@@ -399,7 +398,7 @@ class Analyzer:
             num += 1
         # noinspection PyTypeChecker
         pblink = pastebin.create_paste(response, 1, None, '10M', None)
-        await self.client.send_message(channel, pblink)
+        await channel.send(pblink)
         # make stats for scout mainly
 
     async def lookup(self, channel, id):
@@ -407,9 +406,9 @@ class Analyzer:
             response = "{name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}`    " \
                        "Scout Requests: `{scout_requests}`   Weekly Scouts: `{weekly_scouts}`   Current world list: " \
                        "`{worlds}`\n".format(**self.scouts[id])
-            await self.client.send_message(channel, response)
+            await channel.send(response)
         else:
-            await self.client.send_message(channel, "No stats available for this user.")
+            await channel.send("No stats available for this user.")
 
     # checks all field that a scout can use and makes them if not existent
     # add new stats on this list
@@ -436,7 +435,7 @@ class Analyzer:
     async def set_mute(self, channel, id, name, value):
         self.check_make_scout(id, name)
         self.scouts[id]["bot_mute"] = value
-        await self.client.send_message(channel, f"{name} changed bot_mute.")
+        await channel.send(f"{name} changed bot_mute.")
 
     async def reset_scout(self, channel, id, name):
         self.check_make_scout(id, name)
@@ -449,17 +448,16 @@ class Analyzer:
                 extra_time = (26 - previous_call * 4) * 60
             self.worlds[world] = (previous_call, previous_time, previous_time + extra_time, previous_pop)
         self.scouts[id]["worlds"] = []
-        await self.client.send_message(channel, f"{name} deleted their scout list.")
+        await channel.send(f"{name} deleted their scout list.")
 
     # command = ?scout *amount
     # optional parameter amount can range from 1 to 10
     # tell s the user to scout a list of worlds
     async def get_scout_info(self, channel, author, username, args):
-        id = author.id
+        id = str(author.id)
         if id in self.scouts and len(self.scouts[id]["worlds"]) > 0:
-            await self.client.send_message(channel,
-                                           f"{username}, you still need to scout: {self.scouts[id]['worlds']} "
-                                           f"Use `?resetscout` if you want to delete your list.")
+            await channel.send(f"{username}, you still need to scout: {self.scouts[id]['worlds']} "
+                               f"Use `?resetscout` if you want to delete your list.")
             # if self.scouts[id]["bot_mute"] == 0:
             #     await self.client.send_message(author,
             #                                    f"You still need to scout: {self.scouts[id]['worlds'] } "
@@ -495,18 +493,18 @@ class Analyzer:
             elif len(result) >= 2:
                 response = f"{username}, please scout the following worlds: {result}."
             self.scouts[id]["worlds"] = result
-            await self.client.send_message(channel, response)
+            await channel.send(response)
             # if self.scouts[id]["bot_mute"] == 0:
             #     await self.client.send_message(author, response)
 
     async def addban(self, username, channel):
         if username in self.bans:
             message = username + " is already on ban list."
-            await self.client.send_message(channel, message)
+            await channel.send(message)
             return
         self.bans.append(username)
         message = "Added '" + username + "' to ban list."
-        await self.client.send_message(channel, message)
+        await channel.send(message)
         self.saverb()
 
     async def removeban(self, username, channel):
@@ -514,26 +512,26 @@ class Analyzer:
             self.bans.remove(username)
         except ValueError:
             message = username + " is not on the ban list."
-            await self.client.send_message(channel, message)
+            await channel.send(message)
             return
         message = "Removed '" + username + "' from ban list."
-        await self.client.send_message(channel, message)
+        await channel.send(message)
         self.saverb()
 
     async def clearbans(self, channel):
         self.bans.clear()
         message = "Cleared banlist."
-        await self.client.send_message(channel, message)
+        await channel.send(message)
         self.saverb()
 
     async def addrank(self, username, channel):
         if username in self.ranks:
             message = username + " is already on rank list."
-            await self.client.send_message(channel, message)
+            await channel.send(message)
             return
         self.ranks.append(username)
         message = "Added '" + username + "' to rank list."
-        await self.client.send_message(channel, message)
+        await channel.send(message)
         self.saverb()
 
     async def removerank(self, username, channel):
@@ -541,16 +539,16 @@ class Analyzer:
             self.ranks.remove(username)
         except ValueError:
             message = username + " is not on the rank list."
-            await self.client.send_message(channel, message)
+            await channel.send(message)
             return
         message = "Removed '" + username + "' from rank list."
-        await self.client.send_message(channel, message)
+        await channel.send(message)
         self.saverb()
 
     async def clearranks(self, channel):
         self.ranks.clear()
         message = "Cleared rank list."
-        await self.client.send_message(channel, message)
+        await channel.send(message)
         self.saverb()
 
     async def showbans(self, channel):
@@ -558,14 +556,14 @@ class Analyzer:
         for item in self.bans:
             message += item + "\n"
         message += "```"
-        await self.client.send_message(channel, message)
+        await channel.send(message)
 
     async def showranks(self, channel):
         message = "Ranks:\n```\n"
         for item in self.ranks:
             message += item + "\n"
         message += "```"
-        await self.client.send_message(channel, message)
+        await channel.send(message)
 
     async def showranksandbans(self, channel):
         message = "Ranks:\n```\n"
@@ -576,7 +574,7 @@ class Analyzer:
         for item in self.bans:
             message += item + "\n"
         message += "```"
-        await self.client.send_message(channel, message)
+        await channel.send(message)
 
     async def reset(self):
         self.worlds = {w: (0, 0, 0, 'r') for w in _all_worlds}
@@ -608,9 +606,9 @@ class Analyzer:
             for x in range(0, entry):
                 entries.append(scout)
         logging.info(entries)
-        await self.client.send_message(channel, f"Congrats! <@{str(random.choice(entries))}> has won this weeks raffle!"
-                                                f" Please PM <@168559069022388224> to claim your bond. Thanks for your "
-                                                f"scouts. :)")
+        await channel.send(f"Congrats! <@{str(random.choice(entries))}> has won this weeks raffle!"
+                           f" Please PM <@168559069022388224> to claim your bond. Thanks for your "
+                           f"scouts. :)")
 
     async def entries(self, channel):
         scout_list = sorted(self.scouts.items(), key=lambda x: x[1]["weekly_scouts"], reverse=True)
@@ -623,7 +621,7 @@ class Analyzer:
             num += 1
         if len(response) > 1999:
             response = "Response reached max character limit and was removed. Let staff know of this issue."
-        await self.client.send_message(channel, response)
+        await channel.send(response)
         # make stats for scout mainly
 
     def load(self):
