@@ -12,3 +12,4 @@ pbwrap = { git = 'https://github.com/Mikts/pbwrap.git'}
 airbrake = { git = 'https://github.com/airbrake/airbrake-python.git'}
 yarl = { git = 'https://github.com/aio-libs/yarl.git'}
 aiohttp = { git = 'https://github.com/aio-libs/aiohttp.git'}
+websockets = { git = 'https://github.com/aaugustin/websockets.git'}
