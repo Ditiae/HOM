@@ -4,6 +4,7 @@
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
+import datetime
 import math
 import os
 import re
@@ -12,6 +13,7 @@ import sys
 import time
 import random
 import json
+
 import asyncpg
 import logging
 import discord
@@ -242,6 +244,7 @@ class Analyzer:
                     self.check_make_scout(id, message.author.name)
                     self.scouts[id]["calls"] += 1
             # else. check for cres/sword/juna/seren/aagi/reset etc
+        self.scouts[id]["last_scout"] = datetime.datetime.now()
         if id is not None:
             await self.savescouttodb(id)
         if world is not None:
@@ -404,8 +407,8 @@ class Analyzer:
         num = 1
         for id, scout in scout_list[:10]:
             response += str(num) + ". {name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}` " \
-                                   "   Scout Requests: `{scout_requests}`   Current world list: " \
-                                   "`{worlds}` \n".format(**self.scouts[id])
+                                   "   Scout Requests: `{scout_requests}`   Last Scouted: `{last_scout.date()}`" \
+                                   "   Current world list: `{worlds}` \n".format(**self.scouts[id])
             num += 1
         if len(response) > 1999:
             response = "Response reached max character limit and was removed. Let staff know of this issue."
@@ -428,8 +431,8 @@ class Analyzer:
         num = 1
         for id, scout in scout_list:
             response += str(num) + ". {name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}` " \
-                                   "   Scout Requests: `{scout_requests}`   Current world list: " \
-                                   "`{worlds}` \n".format(**self.scouts[id])
+                                   "Scout Requests: `{scout_requests}`   Last Scouted: `{last_scout.date()}`   " \
+                                   "Current world list: `{worlds}` \n".format(**self.scouts[id])
             num += 1
         # noinspection PyTypeChecker
         pblink = pastebin.create_paste(response, 1, None, '10M', None)
@@ -439,8 +442,8 @@ class Analyzer:
     async def lookup(self, channel, id):
         if id in self.scouts:
             response = "{name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}`    " \
-                       "Scout Requests: `{scout_requests}`   Weekly Scouts: `{weekly_scouts}`   Current world list: " \
-                       "`{worlds}`\n".format(**self.scouts[id])
+                       "Scout Requests: `{scout_requests}`   Weekly Scouts: `{weekly_scouts}`   Last Scouted: " \
+                       "`{last_scout}`   Current world list: `{worlds}`\n".format(**self.scouts[id])
             await channel.send(response)
         else:
             await channel.send("No stats available for this user.")
@@ -466,6 +469,8 @@ class Analyzer:
             self.scouts[id]["bot_mute"] = 0
         if "weekly_scout" not in self.scouts[id]:
             self.scouts[id]["weekly_scout"] = 0
+        if "last_scout" not in self.scouts[id]:
+            self.scouts[id]["last_scout"] = datetime.datetime(1970, 1, 1, 0, 0, 0, 0)
 
     async def set_mute(self, channel, id, name, value):
         self.check_make_scout(id, name)
@@ -736,7 +741,8 @@ class Analyzer:
                     "scout_requests": item['scout_requests'],
                     "worlds": [],
                     "bot_mute": item['bot_mute'],
-                    "weekly_scouts": item['weekly_scouts']
+                    "weekly_scouts": item['weekly_scouts'],
+                    "last_scout": item['last_scout']
                 }
             }
             dict1 = {**dict1, **dict2}
@@ -751,16 +757,17 @@ class Analyzer:
         my_data: Dict[Any, List[Any]] = {
             data: [self.scouts[data]["name"], self.scouts[data]["calls"], self.scouts[data]["scouts"],
                    self.scouts[data]["scout_level"], self.scouts[data]["scout_requests"],
-                   self.scouts[data]["bot_mute"], self.scouts[data]["weekly_scouts"]]
+                   self.scouts[data]["bot_mute"], self.scouts[data]["weekly_scouts"], self.scouts[data]["last_scout"]]
         }
         await conn.execute('''
-                INSERT INTO scouts(memberid, name, calls, scouts, scout_level, scout_requests, bot_mute, weekly_scouts) 
-                VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+                INSERT INTO scouts(memberid, name, calls, scouts, scout_level, scout_requests, bot_mute, weekly_scouts,
+                 last_scout) 
+                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 ON CONFLICT (memberid) DO UPDATE 
                 SET "name" = $2, "calls" = $3, "scouts" = $4, "scout_level" = $5, "scout_requests" = $6,
-                 "bot_mute" = $7, "weekly_scouts" = $8
+                 "bot_mute" = $7, "weekly_scouts" = $8, "last_scout" = $9
             ''', data, my_data[data][0], my_data[data][1], my_data[data][2], my_data[data][3], my_data[data][4],
-                           my_data[data][5], my_data[data][6])
+                           my_data[data][5], my_data[data][6], my_data[data][7])
         await conn.close()
 
     async def saveworldtodb(self, data):
