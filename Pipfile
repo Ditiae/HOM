@@ -6,7 +6,7 @@ verify_ssl = true
 python_version = "3.6.6"
 
 [packages]
-"discord.py" = {git = "https://github.com/PapyrusThePlant/discord.py.git", ref = "rewrite", extras = ["voice"]}
+discord = { git = 'https://github.com/Rapptz/discord.py.git'}
 asyncpg = { git = 'https://github.com/MagicStack/asyncpg.git'}
 pbwrap = { git = 'https://github.com/Mikts/pbwrap.git'}
 airbrake = { git = 'https://github.com/airbrake/airbrake-python.git'}
