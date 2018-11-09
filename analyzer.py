@@ -291,7 +291,7 @@ class Analyzer:
         if not is_staff:
             pass
         else:
-            await ctx.send("This can only be done by staff, are you sure? If so, reply with `Yes`.")
+            await ctx.send("This can only be undone by staff, are you sure? If so, reply with `Yes`.")
 
             def check(m):
                 return m.content.lower() == 'yes' and m.channel.name == "bot-commands"
