@@ -632,10 +632,15 @@ class Analyzer:
             for x in range(0, entry):
                 entries.append(scout)
         logging.info(entries)
-        print(entries)
-        await channel.send(f"Congrats! <@{str(random.choice(entries))}> has won this weeks raffle!"
-                           f" Please PM <@168559069022388224> to claim your bond. Thanks for your "
-                           f"scouts. :)")
+        winner = random.choice(entries)
+        url = guild.get_member(int(winner)).avatar_url
+        embed = discord.Embed(title="Raffle")
+        embed.set_thumbnail(url=url)
+        embed.add_field(name="Congratulations!", value=f"<@{str(winner)}> has won this weeks raffle!",
+                        inline=True)
+        embed.add_field(name="-"*65, value="Message @6xx to claim your bond. Thanks for scouting :)")
+        embed.set_footer(text="Please read the pinned section in #announcements to participate in our raffles.")
+        await channel.send(embed=embed)
 
     async def entries(self, channel, guild):
         scout_list = sorted(self.scouts.items(), key=lambda x: x[1]["weekly_scouts"], reverse=True)
