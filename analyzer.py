@@ -180,7 +180,7 @@ class Analyzer:
             world = int(world)
 
             if world in _special_worlds:
-                if isinstance(message.channel, PrivateChannel):
+                if not isinstance(message.channel, PrivateChannel):
                     await message.channel.send(f"NOTE, w{world} is a {_special_worlds[world]}.")
 
             if world not in self.worlds:
@@ -193,6 +193,21 @@ class Analyzer:
                     if to_be_scouted == world:
                         self.scouts[scout]["worlds"].remove(world)
 
+            if call in ["u", "unknown"]:
+                extra_time = (26 - 0 * 4) * 60
+                self.worlds[world] = (-1, time.time(), time.time() + extra_time, population)
+                id = str(message.author.id)
+                self.check_make_scout(id, message.author.name)
+                self.scouts[id]["scouts"] += 1
+                if "weekly_scouts" not in self.scouts[id]:
+                    self.scouts[id]["weekly_scouts"] = 0
+                self.scouts[id]["weekly_scouts"] += 1
+                scout_level = get_scout_level(self.scouts[id]["scouts"] + self.scouts[id]["calls"])
+                if self.scouts[id]["scout_level"] != scout_level:
+                    self.scouts[id]["scout_level"] = scout_level
+                    await self.rankup(message.author.name, message.guild, scout_level)
+                    await message.channel.send(f"{message.author.name} has leveled up in scouting! "
+                                               f"{message.author.name} is now level {scout_level} in scouting.")
             if call.isdigit():
                 flints_filled = int(call)
 
@@ -283,7 +298,7 @@ class Analyzer:
     def get_table(self, trim):
         active_list = [(k, v) for k, v in self.worlds.items() if self.is_ok(v[0], v[1])]
         next_list = [(k, v) for k, v in self.worlds.items() if
-                     isinstance(v[0], int) and 7 > v[0] > 0]
+                     isinstance(v[0], int) and 7 > v[0] > 0 or v[0] == -1]
         next_list_s = sorted(next_list, key=lambda v: (-v[1][0], MAPPING2[v[1][3]], v[1][1]))
         active_list_s = sorted(active_list, key=lambda v: (MAPPING[v[1][0]], -v[1][1]))
         n = max(len(next_list_s), len(active_list_s), 1)
@@ -312,7 +327,10 @@ class Analyzer:
                     pop = value[3]
                 except IndexError:
                     pop = 'r'
-                s = "w" + str(world) + "(" + str(value[0]) + "/6) " + age + "m " + pop
+                if value[0] == -1:
+                    s = "w" + str(world) + "(?) " + age + "m"
+                else:
+                    s = "w" + str(world) + "(" + str(value[0]) + "/6) " + age + "m " + pop
                 if world in _special_worlds:
                     if str(_special_worlds[world]).find("total") != -1:
                         s = "*" + s
@@ -569,11 +587,11 @@ class Analyzer:
         message = "Ranks:\n```\n"
         for item in self.ranks:
             message += item + "\n"
-        message += "```"
+        message += " ```"
         message += "Bans:\n```\n"
         for item in self.bans:
             message += item + "\n"
-        message += "```"
+        message += " ```"
         await channel.send(message)
 
     async def reset(self):
@@ -599,25 +617,44 @@ class Analyzer:
         for item in self.scouts:
             await self.savescouttodb(item)
 
-    async def raffle(self, channel):
+    async def raffle(self, channel, guild):
         entries = []
         for scout in self.scouts:
-            entry = math.floor(self.scouts[scout]["weekly_scouts"] / 50)
+            entry = 0
+            try:
+                if "raffle-exempt" in [y.name.lower() for y in guild.get_member(int(scout)).roles]\
+                        or "staff" in [y.name.lower() for y in guild.get_member(int(scout)).roles]:
+                    pass
+                else:
+                    entry = math.floor(self.scouts[scout]["weekly_scouts"] / 50)
+            except AttributeError as e:
+                pass
             for x in range(0, entry):
                 entries.append(scout)
         logging.info(entries)
+        print(entries)
         await channel.send(f"Congrats! <@{str(random.choice(entries))}> has won this weeks raffle!"
                            f" Please PM <@168559069022388224> to claim your bond. Thanks for your "
                            f"scouts. :)")
 
-    async def entries(self, channel):
+    async def entries(self, channel, guild):
         scout_list = sorted(self.scouts.items(), key=lambda x: x[1]["weekly_scouts"], reverse=True)
         response = "Here are all the entries for all scouts this week: \n"
         num = 1
         for id, scout in scout_list:
+            exempt = False
+            try:
+                if "staff" in [y.name.lower() for y in guild.get_member(int(id)).roles] \
+                        or "raffle-exempt" in [y.name.lower() for y in guild.get_member(int(id)).roles]:
+                    exempt = True
+            except AttributeError as e:
+                pass
             entries = math.floor(self.scouts[id]['weekly_scouts'] / 50)
             if entries > 0:
-                response += str(num) + f". {self.scouts[id]['name']}: `{entries}`\n "
+                if exempt:
+                    response += str(num) + f". ~~{self.scouts[id]['name']}:~~ `{entries}`\n "
+                else:
+                    response += str(num) + f". {self.scouts[id]['name']}: `{entries}`\n "
             num += 1
         if len(response) > 1999:
             response = "Response reached max character limit and was removed. Let staff know of this issue."

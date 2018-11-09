@@ -87,7 +87,7 @@ async def uptime(ctx):
 async def raffle(ctx):
     channel = ctx.message.channel
     if channel.name == "scout-raffle":
-        await analyzer.raffle(channel)
+        await analyzer.raffle(channel, ctx.message.channel.guild)
     else:
         return
 
@@ -106,7 +106,7 @@ async def resetweek(ctx):
 async def entries(ctx):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
-        await analyzer.entries(channel)
+        await analyzer.entries(channel, channel.guild)
     else:
         return
 
@@ -246,24 +246,24 @@ async def resetscout(ctx):
         await analyzer.reset_scout(channel, str(author.id), username)
 
 
-@client.command(name='mute', help="Mutes the bot from pming you.", brief="", description="",
-                aliases=['zipit', 'stfu'])
-async def mute(ctx):
-    channel = ctx.message.channel
-    if channel.name in settings.channels:
-        author = ctx.message.author
-        username = author.name
-        await analyzer.set_mute(channel, str(author.id), username, 1)
-
-
-@client.command(name='unmute', help="Unmutes the bot so you can be messaged.", brief="", description="",
-                aliases=['unzipit'])
-async def unmute(ctx):
-    channel = ctx.message.channel
-    if channel.name in settings.channels:
-        author = ctx.message.author
-        username = author.name
-        await analyzer.set_mute(channel, str(author.id), username, 0)
+# @client.command(name='mute', help="Mutes the bot from pming you.", brief="", description="",
+#                 aliases=['zipit', 'stfu'])
+# async def mute(ctx):
+#     channel = ctx.message.channel
+#     if channel.name in settings.channels:
+#         author = ctx.message.author
+#         username = author.name
+#         await analyzer.set_mute(channel, str(author.id), username, 1)
+#
+#
+# @client.command(name='unmute', help="Unmutes the bot so you can be messaged.", brief="", description="",
+#                 aliases=['unzipit'])
+# async def unmute(ctx):
+#     channel = ctx.message.channel
+#     if channel.name in settings.channels:
+#         author = ctx.message.author
+#         username = author.name
+#         await analyzer.set_mute(channel, str(author.id), username, 0)
 
 
 @client.command(name='updatescoutstats', help="fixes issues with unset scout fields", brief="", description="")
@@ -366,43 +366,26 @@ async def ping(ctx):
         t1 = time.perf_counter()
         await channel.trigger_typing()
         t2 = time.perf_counter()
-        pingms = round((t2-t1)*1000)
+        pingms = round((t2 - t1) * 1000)
         embed.set_field_at(0, name="Pong! :ping_pong:", value=f"Pong: {pingms}ms")
         await message.edit(embed=embed)
     else:
         pass
 
 
-@client.command(name='commands', help='Lists commands for calling/scouting.', brief="Lists commands", description="")
-async def commands(ctx):
-    channel = ctx.message.channel
-    if channel.name == settings.bot_channel:
-        await ctx.send("To report on a world: `w[#] [number of active plinths]`.\n"
-                         "Example: `w59 4` or `14 2`\n\n"
-                         "To call a core: `w[#] [core name]`.\n"
-                         "Example: `w12 cres` or `42 seren`.\n"
-                         "Aliases for core names are shown here: `['cres', 'c', 'sword', 'edicts', 'e', 'sw', 'juna', "
-                         "'j', 'seren', 'se', 'aagi', 'a']`.\n\n"
-                         "To delete a world: `w[#] [0, d, dead, or gone]`.\n"
-                         "Example: `w103 d` or `56 0`\n\n"
-                         "To get a list of worlds to scout: `?scout [optional amount]`. \n"
-                         "Example: `?scout` for a default of 10 worlds or `?scout 5` for 5 worlds.\n"
-                         "If you dont want/can to complete the list use `?resetscout`.\n"
-                         "If you can't do a world just report it to be 0, or ask someone else to do it for you\n"
-                         "To disable the bot pming your list of worlds: `?mute`\n"
-                         "To enable the bot pming your list of worlds: `?unmute`\n\n"
-                         "You can report the worlds in pm to the bot if you want.\n\n"
-                         "The next column will display a max of 10 worlds sorted by active plints.\n"
-                         "To get the full list: `?worldlist`")
-    else:
-        pass
-
-
 @client.command(name='info', help='Lists FC info.', brief="", description="")
+@commands.cooldown(rate=1, per=180, type=commands.BucketType.channel)
 async def info(ctx):
     channel = ctx.message.channel
     if channel.name == settings.bot_channel:
-        await ctx.send("Look in: #fc-info for information.")
+        embed = discord.Embed(color=0x00AE86)
+        embed.add_field(name="__**About HoM FC**__", value="Our Friends Chat is called `HoM FC`", inline=False)
+        embed.add_field(name="__**When did we start?**__", value="HoM FC was created on "
+                                                                 "November 2, 2018.", inline=False)
+        embed.add_field(name="__**What do we do?**__", value="We hop worlds inside the Hall of Memories and see how "
+                                                             "many plinths are active on each world, and open the "
+                                                             "memory bud in the most efficient order.", inline=False)
+        await ctx.send(embed=embed)
     else:
         pass
 
@@ -494,11 +477,14 @@ async def on_command_error(ctx, error):
             analyzer.ab.notify(error)
             return await ctx.message.channel.send("Command error: " + errors[error_type])
 
+
 if not os.path.exists(auth_file):
     analyzer.logger.error("no auth json found, please create one")
 
 with open(auth_file) as f:
     auth_data = json.load(f)
 
-client.run(os.environ['BOTTOKEN'])
-# client.run(auth_data['token'])
+if os.environ['ISHEROKU'] == "Yes":
+    client.run(os.environ['BOTTOKEN'])
+else:
+    client.run(auth_data['token'])
