@@ -434,7 +434,7 @@ async def ranks(ctx):
 
 @client.event
 async def on_ready():
-    await client.change_presence(game=Game(name="Hall of Memories"))
+    await client.change_presence(activity=Game(name="Hall of Memories"))
     await analyzer.loadworlds()
     await analyzer.loadscouts()
     analyzer.logger.info('Connected!')

@@ -1,5 +1,5 @@
 airbrake
 asyncpg
 pbwrap
-discord-rewrite
+discord-rewrite==1.0.0
 psycopg2-binary==2.7.5
