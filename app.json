@@ -1,0 +1,51 @@
+{
+  "name": "HOM",
+  "description": "",
+  "scripts": {
+  },
+  "env": {
+    "AIRBRAKE_API_KEY": {
+      "required": true
+    },
+    "AIRBRAKE_PROJECT_ID": {
+      "required": true
+    },
+    "BOTTOKEN": {
+      "required": true
+    },
+    "HEROKU_POSTGRESQL_AQUA_URL": {
+      "required": true
+    },
+    "ISHEROKU": {
+      "required": true
+    },
+    "PAPERTRAIL_API_TOKEN": {
+      "required": true
+    },
+    "PB_API_KEY": {
+      "required": true
+    },
+    "PB_PASS": {
+      "required": true
+    },
+    "RAYGUN_APIKEY": {
+      "required": true
+    }
+  },
+  "formation": {
+    "worker": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+    "airbrake",
+    "papertrail",
+    "heroku-postgresql",
+    "raygun"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
