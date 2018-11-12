@@ -443,16 +443,6 @@ class Analyzer:
 
     async def lookup(self, channel, id):
         if id in self.scouts:
-            response = "{name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}`    " \
-                       "Scout Requests: `{scout_requests}`   Weekly Scouts: `{weekly_scouts}`   Last Scouted: " \
-                       "`{last_scout}`   Progress: `{progress}`   Current world list: `{worlds}`\n"\
-                .format(**self.scouts[id], progress=await self.progress(id, channel))
-            await channel.send(response)
-        else:
-            await channel.send("No stats available for this user.")
-
-    async def lookup(self, channel, id):
-        if id in self.scouts:
             user = self.client.get_user(int(id))
             embed = discord.Embed()
             embed.set_author(name=user.display_name, icon_url=user.avatar_url)
