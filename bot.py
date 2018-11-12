@@ -50,7 +50,7 @@ async def stats(ctx, arg="scouts"):
 @client.command(name='progress', help="", brief="", description="")
 async def progress(ctx):
     msg = await analyzer.progressbar(ctx.message.author.id)
-    await ctx.send(msg.replace(" ", "    ")[1:])
+    await ctx.send(msg.replace(" ", "    ").replace("-", " "))
 
 
 @client.command(name='test', help="", brief="", description="")

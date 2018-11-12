@@ -701,14 +701,15 @@ class Analyzer:
     async def progressbar(self, id):
         id = str(id)
         scouts = self.scouts[id]["scouts"] + self.scouts[id]["calls"]
-        base = exp_table[get_scout_level(scouts)]
-        level = exp_table[(get_scout_level(scouts) + 1)]
+        currlevel = get_scout_level(scouts)
+        base = exp_table[currlevel]
+        level = exp_table[(currlevel + 1)]
         scouts = base - scouts
         level = level - base
         pbar = tqdm(total=level, unit="Scouts", bar_format='{l_bar}{bar}')
         pbar.update(scouts)
         pbar.close()
-        return str(pbar) + f"|({scouts}/{level})"
+        return f"Current-Level:-{currlevel} \t{str(pbar)}|({scouts}/{level}) \tNext-Level:-{currlevel+1}"
 
     def progress(self, id):
         id = str(id)
