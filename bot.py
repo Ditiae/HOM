@@ -16,11 +16,12 @@ from discord.ext.commands import Bot, CommandNotFound, DisabledCommand, CheckFai
     BadArgument, TooManyArguments, UserInputError, CommandOnCooldown
 from discord.ext import commands
 from discord import Game, Forbidden
+
 from Settings import Settings
 from analyzer import Analyzer
 
-VERSION = "2.0\n" \
-          "Last Updated: 11/9/2018"
+VERSION = "2.0.2\n" \
+          "Last Updated: 11/11/2018"
 BOT_PREFIX = ("~", "?")
 client = Bot(command_prefix=BOT_PREFIX)
 analyzer = Analyzer(client)
@@ -46,6 +47,16 @@ async def stats(ctx, arg="scouts"):
         pass
 
 
+@client.command(name='progress', help="", brief="", description="")
+async def progress(ctx):
+    await ctx.send(await analyzer.progressbar(ctx.message.author.id))
+
+
+@client.command(name='test', help="", brief="", description="")
+async def test(ctx):
+    pass
+
+
 @client.command(name='fullstats', help="", brief="Shows stats of all scouts.", description="",
                 aliases=['fullhighsores'])
 @commands.cooldown(rate=1, per=600, type=commands.BucketType.channel)
@@ -61,8 +72,9 @@ async def fullstats(ctx, arg="scouts"):
 @client.command(name='save', help="", brief="", description="", hidden=True)
 @commands.has_any_role(*settings.ranks)
 async def save(ctx):
-    await analyzer.save()
-    await ctx.send("Saving finished.")
+    async with ctx.message.channel.typing():
+        await analyzer.save()
+        await ctx.send("Saving finished.")
 
 
 @client.command(name='uptime', help="", brief="Displays how long bot has been live.", description="")
@@ -95,11 +107,12 @@ async def raffle(ctx):
 @client.command(name='resetweek', help='Resets the week.', brief="", description="")
 @commands.has_role("Staff")
 async def resetweek(ctx):
-    if ctx.message.channel.name == "scout-raffle":
-        await analyzer.resetweek()
-        await ctx.send("Week reset. Good luck scouts!")
-    else:
-        return
+    async with ctx.message.channel.typing():
+        if ctx.message.channel.name == "scout-raffle":
+            await analyzer.resetweek()
+            await ctx.send("Week reset. Good luck scouts!")
+        else:
+            return
 
 
 @client.command(name='entries', help='Displays entries for all weekly scouts.', brief="", description="")
@@ -317,7 +330,9 @@ async def relay(ctx):
 async def worldlist(ctx):
     channel = ctx.message.channel
     if channel.name == "scouting":
-        await ctx.send(analyzer.get_table(False))
+        embed = discord.Embed()
+        embed.add_field(name="Current List:", value=analyzer.get_table(False))
+        await ctx.send(embed=embed)
 
 
 @client.command(name='deleteworlddata',
@@ -327,28 +342,29 @@ async def worldlist(ctx):
 @commands.has_any_role(*settings.ranks)
 async def deleteworlddata(ctx):
     channel = ctx.message.channel
-    possible_replies = [
-        'abolished',
-        'obliterated',
-        'annihilated',
-        'eliminated',
-        'removed',
-        'cleared',
-        'erased',
-        'emptied',
-        'nulled',
-        'terminated',
-        'eradicated',
-        'negated',
-        'undone',
-        'wiped',
-        'destroyed'
-    ]
-    if channel.name in settings.channels:
-        await analyzer.reset()
-        response = f"World data has been {random.choice(possible_replies)}."
-        await ctx.send(response)
-        await analyzer.relay(channel)
+    async with channel.typing():
+        possible_replies = [
+            'abolished',
+            'obliterated',
+            'annihilated',
+            'eliminated',
+            'removed',
+            'cleared',
+            'erased',
+            'emptied',
+            'nulled',
+            'terminated',
+            'eradicated',
+            'negated',
+            'undone',
+            'wiped',
+            'destroyed'
+        ]
+        if channel.name in settings.channels:
+            await analyzer.reset()
+            response = f"World data has been {random.choice(possible_replies)}."
+            await ctx.send(response)
+            await analyzer.relay(channel)
 
 
 @client.command(name='stop', help='Stops bot vigorously. Works only with Staff rank.', brief="", description="")
@@ -428,6 +444,24 @@ async def ranks(ctx):
         await ctx.send("```\n" + ranks_str + "\n```")
     else:
         pass
+
+
+@client.command(name='caller', help="", brief="Current list.", description="", pass_context=True)
+async def caller(ctx, *args):
+    channel = ctx.message.channel
+    if len(args) != 0:
+        if args[0] == "none":
+            await client.send_message(channel, "Cleared current caller.")
+            analyzer.caller = None
+            return
+        else:
+            analyzer.caller = args[0]
+            await client.send_message(channel, f"Appointed {str(analyzer.caller)} as caller.")
+    else:
+        if analyzer.caller is None:
+            await client.send_message(channel, "No caller is appointed.")
+        else:
+            await client.send_message(channel, f"The current caller is: {str(analyzer.caller)}.")
 
 
 @client.event

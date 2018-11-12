@@ -22,6 +22,7 @@ from airbrake.notifier import Airbrake
 from discord.abc import PrivateChannel
 from pbwrap import Pastebin
 from typing import Dict, List, Any
+from tqdm import tqdm
 
 
 def parse_line(line):
@@ -149,6 +150,7 @@ class Analyzer:
         self.scouts = {}
         self.ranks = []
         self.bans = []
+        self.caller = None
         self.load()
         self.client = client
         self.table_messages = {}  # dict of tables with messages of the table
@@ -443,8 +445,25 @@ class Analyzer:
         if id in self.scouts:
             response = "{name}:   Scouts: `{scouts}`   Scout level: `{scout_level}`   Calls: `{calls}`    " \
                        "Scout Requests: `{scout_requests}`   Weekly Scouts: `{weekly_scouts}`   Last Scouted: " \
-                       "`{last_scout}`   Current world list: `{worlds}`\n".format(**self.scouts[id])
+                       "`{last_scout}`   Progress: `{progress}`   Current world list: `{worlds}`\n"\
+                .format(**self.scouts[id], progress=await self.progress(id, channel))
             await channel.send(response)
+        else:
+            await channel.send("No stats available for this user.")
+
+    async def lookup(self, channel, id):
+        if id in self.scouts:
+            user = self.client.get_user(int(id))
+            embed = discord.Embed()
+            embed.set_author(name=user.display_name, icon_url=user.avatar_url)
+            embed.add_field(name="Scouts:", value=self.scouts[id]["scouts"], inline=True)
+            embed.add_field(name="Calls:", value=self.scouts[id]["calls"], inline=True)
+            embed.add_field(name="Scout Requests:", value=self.scouts[id]["scout_requests"], inline=True)
+            embed.add_field(name="Weekly Scouts:", value=self.scouts[id]["weekly_scouts"], inline=True)
+            embed.add_field(name="Scout Level:", value=self.scouts[id]["scout_level"], inline=True)
+            embed.add_field(name="Progress to next level:", value=self.progress(id), inline=True)
+            embed.set_footer(text="Last scouted: " + str(self.scouts[id]["last_scout"]))
+            await channel.send(embed=embed)
         else:
             await channel.send("No stats available for this user.")
 
@@ -687,6 +706,27 @@ class Analyzer:
             response = "Response reached max character limit and was removed. Let staff know of this issue."
         await channel.send(response)
         # make stats for scout mainly
+
+    async def progressbar(self, id):
+        id = str(id)
+        scouts = self.scouts[id]["scouts"] + self.scouts[id]["calls"]
+        base = exp_table[get_scout_level(scouts)]
+        level = exp_table[(get_scout_level(scouts) + 1)]
+        scouts = base - scouts
+        level = level - base
+        pbar = tqdm(total=level, unit="Scouts", bar_format='{l_bar}{bar}')
+        pbar.update(scouts)
+        pbar.close()
+        return str(pbar) + f"| {scouts}/{level}"
+
+    def progress(self, id):
+        id = str(id)
+        scouts = self.scouts[id]["scouts"] + self.scouts[id]["calls"]
+        base = exp_table[get_scout_level(scouts)]
+        level = exp_table[(get_scout_level(scouts) + 1)]
+        scouts = base - scouts
+        level = level - base
+        return f"{scouts}/{level} ({round((scouts/level)*100)}%)"
 
     def load(self):
         if os.path.isfile(_save_ranks):
