@@ -669,6 +669,7 @@ class Analyzer:
                 else:
                     entry = math.floor(self.scouts[scout]["weekly_scouts"] / 50)
             except AttributeError as e:
+                self.logger.warning(e)
                 pass
             for x in range(0, entry):
                 entries.append(scout)
@@ -717,7 +718,7 @@ class Analyzer:
         pbar = tqdm(total=level, unit="Scouts", bar_format='{l_bar}{bar}')
         pbar.update(scouts)
         pbar.close()
-        return str(pbar) + f"| {scouts}/{level}"
+        return str(pbar) + f"|({scouts}/{level})"
 
     def progress(self, id):
         id = str(id)

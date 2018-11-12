@@ -54,7 +54,8 @@ async def progress(ctx):
 
 @client.command(name='test', help="", brief="", description="")
 async def test(ctx):
-    pass
+    msg = await analyzer.progressbar(ctx.message.author.id)
+    await ctx.send(msg.replace(" ", "    ")[1:])
 
 
 @client.command(name='fullstats', help="", brief="Shows stats of all scouts.", description="",
@@ -448,20 +449,19 @@ async def ranks(ctx):
 
 @client.command(name='caller', help="", brief="Current list.", description="", pass_context=True)
 async def caller(ctx, *args):
-    channel = ctx.message.channel
     if len(args) != 0:
         if args[0] == "none":
-            await client.send_message(channel, "Cleared current caller.")
+            await ctx.send("Cleared current caller.")
             analyzer.caller = None
             return
         else:
             analyzer.caller = args[0]
-            await client.send_message(channel, f"Appointed {str(analyzer.caller)} as caller.")
+            await ctx.send(f"Appointed {str(analyzer.caller)} as caller.")
     else:
         if analyzer.caller is None:
-            await client.send_message(channel, "No caller is appointed.")
+            await ctx.send("No caller is appointed.")
         else:
-            await client.send_message(channel, f"The current caller is: {str(analyzer.caller)}.")
+            await ctx.send(f"The current caller is: {str(analyzer.caller)}.")
 
 
 @client.event
