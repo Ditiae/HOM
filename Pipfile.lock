@@ -46,7 +46,7 @@
         },
         "asyncpg": {
             "git": "https://github.com/MagicStack/asyncpg.git",
-            "ref": "482a39aef8ebea2467f4ce6cbec3381e0cd0ff5e"
+            "ref": "43a7b213438378e416bff462150b06c267d1b720"
         },
         "chardet": {
             "hashes": [
