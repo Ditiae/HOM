@@ -49,13 +49,13 @@ async def stats(ctx, arg="scouts"):
 
 @client.command(name='progress', help="", brief="", description="")
 async def progress(ctx):
-    await ctx.send(await analyzer.progressbar(ctx.message.author.id))
+    msg = await analyzer.progressbar(ctx.message.author.id)
+    await ctx.send(msg.replace(" ", "    ")[1:])
 
 
 @client.command(name='test', help="", brief="", description="")
 async def test(ctx):
-    msg = await analyzer.progressbar(ctx.message.author.id)
-    await ctx.send(msg.replace(" ", "    ")[1:])
+    pass
 
 
 @client.command(name='fullstats', help="", brief="Shows stats of all scouts.", description="",
