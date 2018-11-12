@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d7d29ea7a39e91bb5b4eabf07dc4a02dc5970fec5a97a04eef353ba56374707c"
+            "sha256": "7331924db9f64c6af28d6d83c95645919586941d986e65f4c554b8c433169747"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -113,6 +113,10 @@
         "pbwrap": {
             "git": "https://github.com/Mikts/pbwrap.git",
             "ref": "0235366cd0374187c91607c66e0c1768899afcc1"
+        },
+        "tqdm": {
+            "git": "https://github.com/tqdm/tqdm.git",
+            "ref": "350640d3171a568fb3f22d64d898e154541acc56"
         },
         "websockets": {
             "hashes": [
