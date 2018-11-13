@@ -1,0 +1,171 @@
+<!doctype html>
+	<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>HoM FC</title>
+		<meta name="description" content="HoM FC">
+		<meta name="author" content="6xx">
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		
+		<style>
+			body {background-color: powderblue;}
+			h1 {color: red;}
+			p {color: blue;}
+			#image {
+				width: 934px;
+				height: 282px;
+				display: block;
+				background-image: url("./background.png");
+			}
+			#avatar {
+				position: absolute;
+				top: 58px;
+				left: 45px;
+				width: 170px;
+				height: 172px;
+				display: inline-block;
+				border-radius: 50%;
+				border: 5px solid #437ddb;
+			}
+			#status {
+				position: absolute;
+				top: 190px;
+				left: 170px;
+				width: 47px;
+				height: 47px;
+				display: inline-block;
+				border-radius: 50%;
+				border: 2px solid black;
+			}
+			#level {
+				position: absolute;
+				color: cyan;
+				font-size: 25px;
+				top: 48px;
+				left: 785px;
+			}
+			#level_number {
+				position: relative;
+				font-size: 40px;
+				display: inline-block;
+			}
+			#username {
+				position: absolute;
+				color: white;
+				font-size: 90px;
+				top: 80px;
+				left: 250px;
+			}
+			#user {
+				position: relative;
+				font-size: 30px;
+				display: inline;
+			}
+			#progress {
+				position: absolute;
+				color: cyan;
+				font-size: 20px;
+				top: 148px;
+				left: 775px;
+			}
+			#progress_number {
+				position: relative;
+				font-size: 20px;
+				display: inline-block;
+			}
+			#progress_bar_bg {
+				position: absolute;
+				top: 180px;
+				left: 230px;
+				display: block;
+				width: 670px;
+				height: 25px;
+				background-color: red;
+				border: 1px solid white;
+				border-radius: 20px;
+			}
+			#progress_bar {
+				position: absolute;
+				display: block;
+				
+				height: 23px;
+				background-color: blue;
+				border: 1px solid blue;
+				border-top-left-radius: 20px;
+				border-bottom-left-radius: 20px;
+				
+			}
+		</style>
+		<script>
+			function getUrlVars() {
+				var vars = {};
+				var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+					vars[key] = value;
+				});
+				return vars;
+			}
+			function getUrlParam(parameter, defaultvalue){
+				var urlparameter = defaultvalue;
+				if(window.location.href.indexOf(parameter) > -1){
+					urlparameter = getUrlVars()[parameter];
+				}
+				return urlparameter;
+			}
+			var user = getUrlVars()["user"];
+			var user_id = getUrlVars()["id"];
+			var level = getUrlVars()["level"];
+			var avatar = getUrlVars()["avatar"];
+			var status = getUrlVars()["status"];
+			var number1 = getUrlVars()["x"];
+			var number2 = getUrlVars()["y"];
+			
+			$(document).ready(function() {
+				//$("avatar")
+				//$("status")
+				$("#username").html(user + '<div id="user"> #' + user_id + '</div>');
+				if (number1 == 0) {
+                    $("#progress_bar").css({ "display": "none"});
+                }
+                if (number1 == number2) {
+                    $("#progress_bar").css({ width: Math.floor(670 * (number1 / number2)-2), "border-top-right-radius": "20px", "border-bottom-right-radius": "20px"});
+                } else {
+                    $("#progress_bar").css({ width: Math.floor(670 * (number1 / number2))});
+                }
+				$("#progress_number").html(number1 + '/' + number2);
+				$("#level_number").html(level);
+				$("#avatar").attr("src", avatar);
+				
+				if (status == 0) {
+					$("#status").css({ "background-color": "#878684"});
+				}
+				if (status == 1) {
+					$("#status").css({ "background-color": "#3dce69"});
+				}
+				if (status == 2) {
+					$("#status").css({ "background-color": "#db9834"});
+				}
+				if (status == 3) {
+					$("#status").css({ "background-color": "#c93d2e"});
+				}
+				if (status == null || status > 3) {
+					$("#status").css({ "background-color": "#878684"});
+				}
+		    });
+			
+		</script>
+	</head>
+
+	<body>
+		<div id="image">
+			<img id="avatar" />
+			<div id="status"></div>
+			<div id="level">Level <div id="level_number">40</div></div>
+			<div id="username">6xx <div id="user">#001</div></div>
+			<div id="progress"><div id="progress_number">86/411</div> XP</div>
+			<div id="progress_bar_bg"><div id="progress_bar"></div></div>
+
+		</div>
+	</body>
+</html>
