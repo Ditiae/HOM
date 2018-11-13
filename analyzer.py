@@ -17,6 +17,7 @@ import json
 import asyncpg
 import logging
 import discord
+import imgkit
 
 from airbrake.notifier import Airbrake
 from discord.abc import PrivateChannel
