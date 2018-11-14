@@ -242,6 +242,16 @@ async def mystats(ctx):
         pass
 
 
+@client.command(name='myfullstats', help="View your stats.", brief="", description="")
+async def myfullstats(ctx):
+    channel = ctx.message.channel
+    id = str(ctx.message.author.id)
+    if channel.name == settings.bot_channel:
+        await analyzer.lookupfull(channel, id)
+    else:
+        pass
+
+
 @client.command(name='slap', help="", brief="", description="")
 async def slap(ctx, user):
     channel = ctx.message.channel

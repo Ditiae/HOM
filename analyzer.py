@@ -17,8 +17,10 @@ import json
 import asyncpg
 import logging
 import discord
-import imgkit
+import selenium
 
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from airbrake.notifier import Airbrake
 from discord.abc import PrivateChannel
 from pbwrap import Pastebin
@@ -140,6 +142,9 @@ def _json_keys_to_dict(x):
 
 pastebin = Pastebin(os.environ['PB_API_KEY'])
 pbuserid = pastebin.authenticate("Wea1th", os.environ['PB_PASS'])
+chrome_options = Options()
+chrome_options.add_argument("--window-size=970430")
+driver = webdriver.Chrome(chrome_options=chrome_options)
 
 
 class Analyzer:
@@ -445,6 +450,22 @@ class Analyzer:
     async def lookup(self, channel, id):
         if id in self.scouts:
             user = self.client.get_user(int(id))
+            scouts = self.scouts[id]["scouts"] + self.scouts[id]["calls"]
+            currlevel = get_scout_level(scouts)
+            base = exp_table[currlevel]
+            level = exp_table[(currlevel + 1)]
+            scouts = base - scouts
+            level = level - base
+            driver.get(f"https://wea1thrs.github.io/HOM/?user={user.display_name}&id={user.discriminator}&level={self.scouts[id]['scout_level']}"
+                       f"&x={scouts}&y={level}&status={self.getstatus(channel.guild.get_member(int(id)).status)}&avatar={user.avatar_url}")
+            driver.save_screenshot('image.png')
+            await channel.send(file=discord.File("image.png"))
+        else:
+            await channel.send("No stats available for this user.")
+
+    async def lookupfull(self, channel, id):
+        if id in self.scouts:
+            user = self.client.get_user(int(id))
             embed = discord.Embed()
             embed.set_author(name=user.display_name, icon_url=user.avatar_url)
             embed.add_field(name="Scouts:", value=self.scouts[id]["scouts"], inline=True)
@@ -654,7 +675,7 @@ class Analyzer:
         for scout in self.scouts:
             entry = 0
             try:
-                if "raffle-exempt" in [y.name.lower() for y in guild.get_member(int(scout)).roles]\
+                if "raffle-exempt" in [y.name.lower() for y in guild.get_member(int(scout)).roles] \
                         or "staff" in [y.name.lower() for y in guild.get_member(int(scout)).roles]:
                     pass
                 else:
@@ -671,7 +692,7 @@ class Analyzer:
         embed.set_thumbnail(url=url)
         embed.add_field(name="Congratulations!", value=f"<@{str(winner)}> has won this weeks raffle!",
                         inline=True)
-        embed.add_field(name="-"*65, value="Message @6xx to claim your bond. Thanks for scouting :)")
+        embed.add_field(name="-" * 65, value="Message @6xx to claim your bond. Thanks for scouting :)")
         embed.set_footer(text="Please read the pinned section in #announcements to participate in our raffles.")
         await channel.send(embed=embed)
 
@@ -847,3 +868,18 @@ class Analyzer:
         saving data) must be done before calling this function."""
         python = sys.executable
         os.execl(python, python, *sys.argv)
+
+    @staticmethod
+    def getstatus(status):
+        if str(status) == "offline":
+            return 0
+        elif str(status) == "invisible":
+            return 0
+        elif str(status) == "online":
+            return 1
+        elif str(status) == "idle":
+            return 2
+        elif str(status) == "dnd":
+            return 3
+        else:
+            return 4
