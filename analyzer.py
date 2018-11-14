@@ -143,7 +143,7 @@ def _json_keys_to_dict(x):
 pastebin = Pastebin(os.environ['PB_API_KEY'])
 pbuserid = pastebin.authenticate("Wea1th", os.environ['PB_PASS'])
 chrome_options = Options()
-chrome_options.add_argument("--window-size=970430")
+chrome_options.add_argument("--window-size=970,430")
 driver = webdriver.Chrome(chrome_options=chrome_options)
 
 
