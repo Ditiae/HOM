@@ -41,7 +41,7 @@
 			}
 			#level {
 				position: absolute;
-				color: cyan;
+				color: white;
 				font-size: 25px;
 				top: 48px;
 				left: 785px;
@@ -65,7 +65,7 @@
 			}
 			#progress {
 				position: absolute;
-				color: cyan;
+				color: white;
 				font-size: 20px;
 				top: 148px;
 				left: 775px;
@@ -91,8 +91,8 @@
 				display: block;
 				
 				height: 23px;
-				background-color: blue;
-				border: 1px solid blue;
+				background-color: green;
+				border: 1px solid green;
 				border-top-left-radius: 20px;
 				border-bottom-left-radius: 20px;
 				
@@ -122,10 +122,28 @@
 			var number2 = getUrlVars()["y"];
 			
 			$(document).ready(function() {
-				//$("avatar")
-				//$("status")
+				
+				if (user.length < 6) {
+					$("#username").css({"font-size": "90px"});
+				}
+				if (user.length > 5 && user.length < 17) {
+					$("#username").css({"font-size": "60px", "top": "110px"});
+				}
+				if (user.length > 16 && user.length < 30) {
+					$("#username").css({"font-size": "30px", "top": "140px"});
+				}
+				
 				$("#username").html(user + '<div id="user"> #' + user_id + '</div>');
-				$("#progress_bar").css({ width: Math.floor(670 * (number1 / number2))});
+				
+				if (number1 == 0) {
+					$("#progress_bar").css({ "display": "none"});
+				}
+				if (number1 == number2) {
+					$("#progress_bar").css({ width: Math.floor(670 * (number1 / number2)-2), "border-top-right-radius": "20px", "border-bottom-right-radius": "20px"});
+				} else {
+					$("#progress_bar").css({ width: Math.floor(670 * (number1 / number2))});
+				}
+				
 				$("#progress_number").html(number1 + '/' + number2);
 				$("#level_number").html(level);
 				$("#avatar").attr("src", avatar);
