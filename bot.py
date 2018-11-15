@@ -54,7 +54,17 @@ async def progress(ctx):
 
 
 @client.command(name='test', help="", brief="", description="")
-async def test(ctx):
+async def test(ctx, *args):
+    pass
+
+
+@client.command(name='setwindow', help="", brief="", description="")
+@commands.has_role("Staff")
+async def setwindow(ctx, *args):
+    x = str(args[0])
+    y = str(args[1])
+    analyzer.driver.set_window_size(x, y)
+    await ctx.send(f"{x}, {y}")
     pass
 
 

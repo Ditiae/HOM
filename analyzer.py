@@ -143,8 +143,7 @@ def _json_keys_to_dict(x):
 pastebin = Pastebin(os.environ['PB_API_KEY'])
 pbuserid = pastebin.authenticate("Wea1th", os.environ['PB_PASS'])
 chrome_options = Options()
-chrome_options.add_argument("--window-size=970,430")
-driver = webdriver.Chrome(chrome_options=chrome_options)
+chrome_options.add_argument("--window-size=950,300")
 
 
 class Analyzer:
@@ -152,6 +151,7 @@ class Analyzer:
         self.ab = Airbrake(project_id=os.environ['AIRBRAKE_PROJECT_ID'], api_key=os.environ['AIRBRAKE_API_KEY'])
         self.logger = logging
         self.logger.basicConfig(level=logging.INFO)
+        self.driver = webdriver.Chrome(chrome_options=chrome_options)
         self.worlds = {}
         self.scouts = {}
         self.ranks = []
@@ -456,9 +456,9 @@ class Analyzer:
             level = exp_table[(currlevel + 1)]
             scouts = base - scouts
             level = level - base
-            driver.get(f"https://wea1thrs.github.io/HOM/?user={user.display_name}&id={user.discriminator}&level={self.scouts[id]['scout_level']}"
+            self.driver.get(f"https://wea1thrs.github.io/HOM/?user={user.display_name}&id={user.discriminator}&level={self.scouts[id]['scout_level']}"
                        f"&x={scouts}&y={level}&status={self.getstatus(channel.guild.get_member(int(id)).status)}&avatar={user.avatar_url}")
-            driver.save_screenshot('image.png')
+            self.driver.save_screenshot('image.png')
             await channel.send(file=discord.File("image.png"))
         else:
             await channel.send("No stats available for this user.")
