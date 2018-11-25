@@ -486,7 +486,7 @@ async def caller(ctx, *args):
 
 @client.event
 async def on_ready():
-    await client.change_presence(activity=Game(name="Hall of Memories"))
+    await client.change_presence(activity=Game(name="HoM | made by Ditiae"))
     await analyzer.loadworlds()
     await analyzer.loadscouts()
     analyzer.logger.info('Connected!')
